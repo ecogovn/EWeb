@@ -25,7 +25,7 @@ You are almost finished and ready to setup your back end part. once you setup je
      password: 123456789 <br>
 
 
- Dispatcher App :  http://your-base-url/dispatch-login
+ Dispatcher App :  http://your-base-url/login-dispatch
 
 
 

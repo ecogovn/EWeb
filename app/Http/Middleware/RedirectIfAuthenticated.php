@@ -23,7 +23,7 @@ class RedirectIfAuthenticated
 
             // dd(Auth::guard($guard)->user());
             if (Auth::guard($guard)->user()->hasRole(Role::DISPATCHER)) {
-                return redirect('/dispatch/dashboard');
+                return redirect('/dispatch/home');
             } else  if (Auth::guard($guard)->user()->hasRole(Role::DELIVERY_DISPATCHER)) {
                 return redirect('/delivery-dispatch/dashboard');
             }

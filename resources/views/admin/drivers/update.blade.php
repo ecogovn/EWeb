@@ -3,8 +3,8 @@
 
 
 @section('content')
-
-    <!-- Start Page content -->
+  <link rel="stylesheet" href="{{ asset('assets/build/css/intlTelInput.css') }}">
+  <!-- Start Page content -->
     <div class="content">
         <div class="container-fluid">
 
@@ -23,7 +23,7 @@
 
                         <div class="col-sm-12">
 
-                            <form method="post" class="form-horizontal" action="{{ url('drivers/update', $item->id) }}"
+                            <form method="post" id="driverUpdate"  class="form-horizontal" action="{{ url('drivers/update', $item->id) }}"
                                 enctype="multipart/form-data">
                                 {{ csrf_field() }}
                                 <div class="row">
@@ -62,6 +62,7 @@
                                             <input class="form-control" type="text" id="mobile" name="mobile"
                                                 value="{{ old('mobile', "********") }}" required=""
                                                 placeholder="@lang('view_pages.enter_mobile')">
+                                            <input type="hidden" value="{{$item->country ? $item->countryDetail->code : get_settings('default_country_code_for_mobile_app')}}" id="dial_code">
                                             <span class="text-danger">{{ $errors->first('mobile') }}</span>
 
                                         </div>
@@ -71,6 +72,7 @@
                                             <input class="form-control" type="text" id="mobile" name="mobile"
                                                 value="{{ old('mobile', $item->mobile) }}" required=""
                                                 placeholder="@lang('view_pages.enter_mobile')">
+                                            <input type="hidden" value="{{$item->country ? $item->countryDetail->code : get_settings('default_country_code_for_mobile_app')}}" id="dial_code">
                                             <span class="text-danger">{{ $errors->first('mobile') }}</span>
 
                                         </div>
@@ -100,6 +102,7 @@
                                 </div>
                                 
                                 <div class="row">
+                                    @if($app_for !== 'taxi' && $app_for !== 'delivery')
                                 <div class="col-sm-6">
                                            <div class="form-group">
                                                <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
@@ -112,6 +115,7 @@
                                                <span class="text-danger">{{ $errors->first('transport_type') }}</span>
                                            </div>
                                        </div>
+                                       @endif
                                  <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="type">@lang('view_pages.vehicle_type')
@@ -221,9 +225,33 @@
     <!-- jQuery 3 -->
     <script src="{{ asset('assets/vendor_components/jquery/dist/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/build/js/intlTelInput.js') }}"></script>
 
-    <script>
-$(document).ready(function() {
+<script>
+
+    let util = '{{ asset('assets/build/js/utils.js') }}';
+    var input = document.querySelector("#mobile");
+    var default_country = $('#dial_code').val();
+    var iti = window.intlTelInput(input, {
+        initialCountry: default_country,
+        allowDropdown: true,
+        separateDialCode: true,
+        utilsScript: util,
+    });
+    $('#driverUpdate').submit(function(e){
+        e.preventDefault();
+        var formData = $(this).serializeArray();
+        formData.push({name:'dial_code', value:$('.iti__selected-dial-code').text()});
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'dial_code',
+            value: $('.iti__selected-dial-code').text()
+        }).appendTo(this);
+        $.param(formData);
+        $(this).off('submit').submit();
+    })
+    $(document).ready(function(){
+
     // Retrieve the initial selected transport_type value
     var initialTransportType = $('#transport_type').val();
 

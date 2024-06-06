@@ -42,6 +42,7 @@ use App\Base\Constants\Setting\Settings;
 use Kreait\Firebase\Contract\Database;
 use App\Models\Admin\Owner;
 use App\Jobs\Notifications\SendPushNotification;
+use Config;
 
 /**
  * @resource Driver
@@ -114,6 +115,7 @@ class FleetDriverController extends BaseController
     */
     public function getApprovedFleetDrivers(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
         if (access()->hasRole(RoleSlug::SUPER_ADMIN)) {
                 $query = Driver::whereNotNull('owner_id')->where('approve', true)->orderBy('created_at', 'desc');
                 if (env('APP_FOR')=='demo') {
@@ -128,7 +130,7 @@ class FleetDriverController extends BaseController
             }
             $results = $queryFilter->builder($query)->customFilter(new DriverFilter)->paginate();
 
-            return view('admin.fleet-drivers._drivers', compact('results'))->render();
+            return view('admin.fleet-drivers._drivers', compact('results','app_for'))->render();
 
     }
     public function approvalPending()
@@ -141,6 +143,8 @@ class FleetDriverController extends BaseController
     }
     public function getApprovalPendingFleetDrivers(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
          if (access()->hasRole(RoleSlug::SUPER_ADMIN)) {
                 $query = Driver::where('approve', false)->whereNotNull('owner_id')->orderBy('created_at', 'desc');
 
@@ -156,7 +160,7 @@ class FleetDriverController extends BaseController
             }
             $results = $queryFilter->builder($query)->customFilter(new DriverFilter)->paginate();
 
-            return view('admin.fleet-drivers._drivers', compact('results'))->render();
+            return view('admin.fleet-drivers._drivers', compact('results','app_for'))->render();
 
     }
 
@@ -177,13 +181,14 @@ class FleetDriverController extends BaseController
         $companies = Company::active()->get();
 
         $owner = Owner::whereApprove(true)->get();
+        $app_for = config('app.app_for');
 
 // dd($owner);
 
         $main_menu = 'fleet-drivers';
         $sub_menu = 'driver_details';
 
-        return view('admin.fleet-drivers.create', compact('services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake','owner'));
+        return view('admin.fleet-drivers.create', compact('services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake','owner', 'app_for'));
     }
 
     /**
@@ -203,18 +208,16 @@ class FleetDriverController extends BaseController
         $validate_exists_mobile = $this->user->belongsTorole(Role::DRIVER)->where('mobile', $request->mobile)->exists();
 
         if ($validate_exists_email) {
-            return redirect()->back()->withErrors(['email'=>'Provided email hs already been taken'])->withInput();
+            return redirect()->back()->withErrors(['email'=>'Provided email has already been taken'])->withInput();
         }
         if ($validate_exists_mobile) {
-            return redirect()->back()->withErrors(['mobile'=>'Provided mobile hs already been taken'])->withInput();
+            return redirect()->back()->withErrors(['mobile'=>'Provided mobile has already been taken'])->withInput();
         }
         $created_params['vehicle_type'] = $request->input('type');
         // $created_params['postal_code'] = $request->postal_code;
         $created_params['uuid'] = driver_uuid();
 
-        $service_location = ServiceLocation::find($request->service_location_id);
-
-        $country_id = $service_location->country;
+        $country = Country::where('dial_code',$request->dial_code)->first();
 
         $user = $this->user->create(['name'=>$request->input('name'),
             'email'=>$request->input('email'),
@@ -223,7 +226,7 @@ class FleetDriverController extends BaseController
             'password' => bcrypt($request->input('password')),
             'company_key'=>auth()->user()->company_key,
             'refferal_code'=> str_random(6),
-            'country'=>$country_id,
+            'country'=>$country->id,
         ]);
 
 
@@ -236,6 +239,7 @@ class FleetDriverController extends BaseController
 
 
         $created_params['active'] = false;
+        $created_params['country'] = $country->id;
 
         $driver = $user->driver()->create($created_params);
 
@@ -263,14 +267,19 @@ class FleetDriverController extends BaseController
         $companies = Company::active()->get();
         $item = $driver;
         $transportType = CarMake::active()->get();
-        $carmake = CarMake::active()->whereTransportType($item->transport_type)->get();
+        $app_for = config('app.app_for');
+        if($app_for == 'taxi' || $app_for == 'delivery'){
+            $carmake = CarMake::active()->get();
+        }else{
+            $carmake = CarMake::active()->whereTransportType($item->transport_type)->get();
+        }
         $carmodel = CarModel::active()->whereMakeId($item->car_make)->get();
         $owner = Owner::whereApprove(true)->get();
         $main_menu = 'fleet-drivers';
         $sub_menu = 'driver_details';
 
 
-        return view('admin.fleet-drivers.update', compact('item', 'services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake', 'carmodel','owner'));
+        return view('admin.fleet-drivers.update', compact('item', 'services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake', 'carmodel','owner','app_for'));
     }
 
 
@@ -290,6 +299,7 @@ class FleetDriverController extends BaseController
         if ($validate_exists_mobile) {
             return redirect()->back()->withErrors(['mobile'=>'Provided mobile hs already been taken'])->withInput();
         }
+        $country = Country::where('dial_code',$request->dial_code)->first();
 
 
         $user_param = $request->only(['profile']);
@@ -305,6 +315,7 @@ class FleetDriverController extends BaseController
             'email'=>$request->input('email'),
             'mobile'=>$request->input('mobile'),
             'transport_type'=>$request->input('transport_type'),
+            'country'=>$country->id,
             'car_make'=>$request->input('car_make'),
             'car_model'=>$request->input('car_model'),
             'car_color'=>$request->input('car_color'),
@@ -316,6 +327,7 @@ class FleetDriverController extends BaseController
         ]);
         $driver->user->update(['name'=>$request->input('name'),
             'email'=>$request->input('email'),
+            'country'=>$country->id,
             'mobile'=>$request->input('mobile'),
             'profile_picture'=>$user_param['profile']
         ]);

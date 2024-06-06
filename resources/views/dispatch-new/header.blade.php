@@ -368,22 +368,25 @@ top:0px !important
 <header class="box" style="box-shadow: 0 30px 40px #0000000b;">
  <div class=" navbar">
 
-
   <nav>
     <svg class="close" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41L17.59 5Z" fill="black"/>
 </svg>
     <ul class="nav navbar-links">
-      <li class="d-flex driver-list"><i data-feather="user"></i><a href="{{ url('/dispatch/home') }}" id="driver-list">Driver List</a></li>
-      <li class="d-flex bookride navbar-dropdown"><i data-feather="play"></i><a  id="bookride">Book Ride</a>
+      <li class="d-flex driver-list"><i data-feather="user"></i><a href="{{ url('/dispatch/home') }}" id="driver-list">@lang('view_pages.drivers_list')</a></li>
+      <li class="d-flex bookride navbar-dropdown"><i data-feather="play"></i><a  id="bookride">@lang('view_pages.book_ride')</a>
           <div class="dropdown">
-            <a href="{{ url('/book-ride') }}?type=taxi"><i class="fa fa-car me-2"></i>Taxi Ride</a>
-            <a href="{{ url('/book-ride') }}?type=delivery"><i class="fa-solid fa-truck" class="me-2"></i>Delivery</a>
-            <a href="{{ url('/book-ride') }}?type=rental"><i class="fa-sharp fa-solid fa-truck-clock" class="me-2"></i>Rental</a>
+            @if(config('app.app_for') !== 'delivery')
+            <a href="{{ url('/book-ride') }}?type=taxi"><i class="fa fa-car me-2"></i>@lang('view_pages.taxi')</a>
+            @endif
+            @if(config('app.app_for') !== 'taxi')
+            <a href="{{ url('/book-ride') }}?type=delivery"><i class="fa-solid fa-truck" class="me-2"></i>@lang('view_pages.delivery')</a>
+            @endif
+            <a href="{{ url('/book-ride') }}?type=rental"><i class="fa-sharp fa-solid fa-truck-clock" class="me-2"></i>@lang('view_pages.rental')</a>
           </div>
       </li>
-      <li class="d-flex request"><i data-feather="file-text"></i><a href="{{ url('/dispatch/requests-list') }}" id="link3" >Request List</a></li>
-      <li class="d-flex ongoing"><i data-feather="truck" class="me-2"></i><a href="{{ url('/ongoing-trip') }}" id="link4">Ongoing Trip</a></li>
+      <li class="d-flex request"><i data-feather="file-text"></i><a href="{{ url('/dispatch/requests-list') }}" id="link3" >@lang('view_pages.request_list')</a></li>
+      <li class="d-flex ongoing"><i data-feather="truck" class="me-2"></i><a href="{{ url('/ongoing-trip') }}" id="link4">@lang('view_pages.ongoing_trip')</a></li>
     </ul>
   </nav>
 
@@ -392,7 +395,7 @@ top:0px !important
           <img alt="" src="{{ asset('assets/img/user-dummy.svg') }}">
       </div>
       <div class="dropdown-content" id="myDropdown">
-        <a href="{{url('/api/spa/logout')}}"><i class="fa fa-sign-out me-3" style="color:#fca503;"></i>Logout</a>
+        <a href="{{url('/api/spa/logout')}}"><i class="fa fa-sign-out me-3" style="color:#fca503;"></i>@lang('view_pages.logout')</a>
       </div>
   </div>
 

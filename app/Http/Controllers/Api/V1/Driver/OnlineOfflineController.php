@@ -8,15 +8,19 @@ use App\Transformers\Driver\DriverProfileTransformer;
 use App\Http\Controllers\Api\V1\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Contract\Database;
 
 class OnlineOfflineController extends BaseController
 {
     protected $driver;
 
-    public function __construct(Driver $driver)
+    public function __construct(Driver $driver,Database $database)
     {
         $this->driver = $driver;
+        $this->database = $database;
+
     }
+
 
     /**
     * Online-Offline driver
@@ -32,7 +36,20 @@ class OnlineOfflineController extends BaseController
         $status = $driver->active?0:1;
         $current_date = Carbon::now();
 
-        Log::info($status);
+        if($driver->vehicle_type!=null){
+            if(!$driver->driverVehicleTypeDetail()->where('vehicle_type', $driver->vehicle_type)->exists())
+            {
+                $driver->driverVehicleTypeDetail()->create(['vehicle_type'=>$driver->vehicle_type]);
+
+             }
+
+             $this->database->getReference('drivers/driver_'.$driver->id)->update(['vehicle_type'=>null,'updated_at'=> Database::SERVER_TIMESTAMP]);
+
+             $driver->vehicle_type=null;
+
+             $driver->save();
+          }
+        // Log::info($status);
         
         if ($status) {
             // check if any record is exists with same date

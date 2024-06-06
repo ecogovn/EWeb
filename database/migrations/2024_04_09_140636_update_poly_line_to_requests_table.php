@@ -16,7 +16,7 @@ class UpdatePolyLineToRequestsTable extends Migration
         if (Schema::hasTable('requests')) {
             if (!Schema::hasColumn('requests', 'poly_line')) {
                 Schema::table('requests', function (Blueprint $table) {
-                    $table->string('poly_line')->after('is_later')->nullable();
+                    $table->longText('poly_line')->after('is_later')->nullable();
                 });
             }         
         }

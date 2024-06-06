@@ -189,6 +189,7 @@ input[type="radio"] {
                 </div>
 
                 @if($request->type == "rental")
+                @if($app_for !=="taxi" && $app_for !== 'delivery')
 <!-- Select goods type -->
                  <div class="d-flex flex-column flex-sm-row align-items-center p-5">
                     <h2 class="me-auto" style="font-size:20px;font-weight:800;">
@@ -212,6 +213,7 @@ input[type="radio"] {
                     </div>
                   </div>
                 </div>
+                @endif
                 <div class="d-flex flex-column flex-sm-row align-items-center p-5">
                     <h2 class="me-auto" style="font-size:20px;font-weight:800;">
                         Select Package Types
@@ -233,8 +235,9 @@ input[type="radio"] {
                   </div>
                 </div>
                 @endif
-                @if($request->type == "delivery")
+                @if($request->type == "delivery" || $request->type == "rental" || $app_for == 'delivery')
  <!-- Select goods type -->
+ <div id="goods_details" style="display:{{$request->type=='delivery'|| $app_for == 'delivery' ? 'block':'none'}}">
                 <div class="d-flex flex-column flex-sm-row align-items-center p-5">
                     <h2 class="me-auto" style="font-size:20px;font-weight:800;">
                         Select Goods Type
@@ -250,7 +253,7 @@ input[type="radio"] {
 
                           <select class="w-full"
                     aria-label=".form-select-sm example" id="goods_type"
-                    name="goods_type" style=" padding: 5px; user-select: none;cursor: height: 45px; pointer;color:black;">
+                    name="goods_type" style=" padding: 5px; user-select: none;cursor:pointer; height: 45px; color:black;">
                     <option selected disabled value="">Select</option>
                 </select>
 
@@ -293,7 +296,7 @@ input[type="radio"] {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div></div>
                 @endif
 
 <!-- vehicle types -->
@@ -331,6 +334,9 @@ input[type="radio"] {
                 </div>
   </div>
                 <script>
+var default_latitude = {{get_settings('default_latitude')}};
+var default_longitude = {{get_settings('default_longitude')}};
+var default_country = "{{get_settings('default_country_code_for_mobile_app')}}";
     // Get the current time
 
     var today = new Date();
@@ -408,6 +414,7 @@ input[type="radio"] {
   </div>
 </div>
 <script>
+  var app_for = "{{$app_for}}";
   $(document).ready(function(){
     $("li.d-flex").removeClass("active");
     $('li.bookride').addClass('active');

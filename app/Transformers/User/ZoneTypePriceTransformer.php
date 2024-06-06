@@ -45,7 +45,7 @@ class ZoneTypePriceTransformer extends TransformerAbstract
             $params[$k]['type_id'] = $price->zone_type_id;
             $params[$k]['price_type'] = $price->price_type;
             $params[$k]['admin_commission_type'] = get_settings('admin_commission_type')==1?'percentage':'fixed';
-            $params[$k]['admin_commission'] = get_settings('admin_commission');
+            $params[$k]['admin_commission'] = $zone_type->admin_commision;
 
             $basePrice = $price->base_price;
             $pricePerDistance = $price->price_per_distance;

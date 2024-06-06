@@ -13,9 +13,13 @@ class UpdateGoodsTypesForToGoodsTypesTable extends Migration
      */
     public function up()
     {
-        Schema::table('goods_types', function (Blueprint $table) {
-             $table->enum('goods_types_for',['truck' , 'motor_bike'])->after('goods_type_name')->nullable();
-        });
+        if (Schema::hasTable('goods_types')) {
+            if (!Schema::hasColumn('goods_types', 'goods_types_for')) {
+                Schema::table('goods_types', function (Blueprint $table) {
+                $table->enum('goods_types_for',['truck' , 'motor_bike'])->after('goods_type_name')->nullable();
+                });
+            }
+        }
     }
 
     /**

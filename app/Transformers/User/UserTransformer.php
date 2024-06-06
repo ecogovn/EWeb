@@ -54,6 +54,7 @@ class UserTransformer extends Transformer
         $params = [
             'id' => $user->id,
             'name' => $user->name,
+            'gender' => $user->gender,
             'last_name' => $user->last_name,
             'username' => $user->username,
             'email' => $user->email,
@@ -87,7 +88,8 @@ class UserTransformer extends Transformer
         $params['show_bank_info_feature_on_mobile_app'] =  get_settings('show_bank_info_feature_on_mobile_app');
         $params['show_wallet_feature_on_mobile_app'] =  get_settings('show_wallet_feature_on_mobile_app');
 
-        $params['show_outstation_ride_feature'] =  get_settings('show_outstation_ride_feature');
+        $app_for = config('app.app_for');
+
 
         // $params['show_outstation_ride_feature'] = "0";
 
@@ -112,8 +114,14 @@ class UserTransformer extends Transformer
 
         $params['maximum_time_for_find_drivers_for_regular_ride'] = (get_settings(Settings::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_REGULAR_RIDE) * 60);
 
-            $params['maximum_time_for_find_drivers_for_bitting_ride'] = (get_settings(Settings::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE));
+        $params['maximum_time_for_find_drivers_for_bitting_ride'] = (get_settings(Settings::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE));
 
+
+       $params['enable_driver_preference_for_user'] = (get_settings(Settings::ENABLE_DRIVER_PREFERENCE_FOR_USER));
+       $params['enable_pet_preference_for_user'] = (get_settings(Settings::ENABLE_PET_PREFERENCE_FOR_USER));
+       $params['enable_luggage_preference_for_user'] = (get_settings(Settings::ENABLE_LUGGAGE_PREFERENCE_FOR_USER));
+
+        $params['bidding_amount_increase_or_decrease'] = (get_settings(Settings::BIDDING_AMOUNT_INCREASE_OR_DECREASE));
 
 
         $params['show_ride_without_destination'] = (get_settings(Settings::SHOW_RIDE_WITHOUT_DESTINATION));
@@ -137,6 +145,14 @@ class UserTransformer extends Transformer
 
         $params['has_ongoing_ride'] = $ongoing_ride;
 
+        if($app_for == 'bidding'){
+            $params['show_outstation_ride_feature'] =  get_settings('show_outstation_ride_feature');
+        }
+
+        if($app_for=='taxi' || $app_for=='delivery')
+        {
+           $params['enable_modules_for_applications'] =  $app_for;
+        }
 
         return $params;
     }

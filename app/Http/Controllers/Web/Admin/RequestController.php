@@ -39,7 +39,17 @@ class RequestController extends Controller
 
     public function getAllRequest(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+       
         $query = RequestRequest::companyKey()->where('transport_type','taxi');
+
+        if($app_for=='taxi')
+        {
+        
+        $query = RequestRequest::companyKey();
+
+        }
+
 
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
@@ -48,8 +58,18 @@ class RequestController extends Controller
 
     public function getAllDeliveryRequest(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+       
         $query = RequestRequest::companyKey()->where('transport_type','delivery');
 
+        if($app_for=='delivery')
+        {
+        
+        $query = RequestRequest::companyKey();
+
+        }
+
+        // dd($app_for);
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
         return view('admin.delivery_request._request', compact('results'));
@@ -125,7 +145,15 @@ class RequestController extends Controller
 
      public function getAllScheduledRequest(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
         $query = RequestRequest::companyKey()->where('transport_type','taxi')->whereIsCompleted(false)->whereIsCancelled(false)->whereIsLater(true);
+
+        if($app_for=='taxi')
+        {
+        $query = RequestRequest::companyKey()->whereIsCompleted(false)->whereIsCancelled(false)->whereIsLater(true);
+        }
+
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
         return view('admin.scheduled-rides._scheduled', compact('results'));
@@ -133,7 +161,16 @@ class RequestController extends Controller
 
     public function getAllScheduledDeliveryRequest(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
         $query = RequestRequest::companyKey()->where('transport_type','delivery')->whereIsCompleted(false)->whereIsCancelled(false)->whereIsLater(true);
+
+
+        if($app_for=='delivery')
+        {
+        $query = RequestRequest::companyKey()->whereIsCompleted(false)->whereIsCancelled(false)->whereIsLater(true);
+        }
+
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
         return view('admin.scheduled-delivery-rides._scheduled', compact('results'));
@@ -208,7 +245,16 @@ public function getCancelledRequest(RequestRequest $request)
     }
     public function getAllOutStationRequest(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+        
         $query = RequestRequest::companyKey()->where('transport_type','taxi')->whereIsCompleted(false)->whereIsCancelled(false)->whereIsOutstation(true);
+
+
+        if($app_for=='taxi')
+        {
+        $query = RequestRequest::companyKey()->whereIsCompleted(false)->whereIsCancelled(false)->whereIsOutstation(true);
+        }
+
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
         return view('admin.scheduled-rides._scheduled', compact('results'));

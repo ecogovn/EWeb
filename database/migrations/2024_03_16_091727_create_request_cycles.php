@@ -13,6 +13,7 @@ class CreateRequestCycles extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('request_cycles')) {        
         Schema::create('request_cycles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->uuid('request_id');
@@ -29,6 +30,7 @@ class CreateRequestCycles extends Migration
             ->on('drivers')
             ->onDelete('cascade');
         });
+      }
     }
 
     /**

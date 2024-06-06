@@ -37,6 +37,7 @@ class Onboarding extends Model
      * @var array
      */
     protected $fillable = [
+        'sn_o',
         'screen',
         'title',
         'order',

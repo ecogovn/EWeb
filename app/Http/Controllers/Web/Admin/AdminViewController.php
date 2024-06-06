@@ -91,7 +91,95 @@ class AdminViewController extends BaseController
         return redirect('dispatch/home');
 
         }
+/*taxi*/
+        if($conditional_host[0] =='tagxi-docs'){
 
+        return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-server'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='tagxi-dispatch'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
+/*delivery*/
+        if($conditional_host[0] =='delivery-docs'||$conditional_host[0] =='tagxi-delivery-docs'){
+
+            return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-delivery'||$conditional_host[0] =='delivery'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+
+        }
+
+        if($conditional_host[0] =='tagxi-delivery-dispatch'||$conditional_host[0] =='delivery-dispatch'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
+/*super-app*/
+        if($conditional_host[0] =='tagxi-super-docs'){
+
+        return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-super-server'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='admin'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='tagxi-super-dispatcher'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
         return view('admin.login');
     }
 
@@ -118,17 +206,11 @@ class AdminViewController extends BaseController
 
         $sub_menu = null;
         $item = $driver;
-        // $request_detail = $driver->requestDetail()->OrderBy('id','asc')->first();
-
-        // if ($request_detail) {
 
         $firebase_request_detail = $this->database->getReference('drivers/driver_'.$driver->id)->getValue();
         $zone = Zone::companyKey()->first();
-        // dd($firebase_request_detail);
-        // $default_lat = $firebase_request_detail["l"][0];
-        // $default_lng = $firebase_request_detail["l"][1];
 
-         $default_lat = $zone->lat;
+        $default_lat = $zone->lat;
         $default_lng = $zone->lng;
 
         $today = date('Y-m-d');
@@ -396,6 +478,13 @@ class AdminViewController extends BaseController
 
 
 
+    /**
+     * Redirect to dispatcher login
+     */
+    public function viewDispatchLogin()
+    {
+        return view('dispatch-new.login');
+    }
 
 
 
@@ -692,15 +781,14 @@ class AdminViewController extends BaseController
         return redirect()->back();
     }
 
-    public function trackTripDetails(Request $request)
+    public function trackTripDetails($id)
     {
-              $id=$request->id;
-
             $request_bill = RequestBill::where('request_id', $id)->first();
 
-            $rideInfo = Request::where('id', $id)->first();
+            $rideInfo = RequestModel::where('id', $id)->first();
 
-
+            $request = $rideInfo;
+            
             $driverId = $rideInfo->driver_id;
             $driver = Driver::find($driverId);
             $driverImageId=Driver::where('user_id', $driverId)->first();

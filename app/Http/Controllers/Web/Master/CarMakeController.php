@@ -32,16 +32,31 @@ class CarMakeController extends BaseController
 
         $main_menu = 'master';
         $sub_menu = 'car_make';
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.carmake.index', compact('page', 'main_menu', 'sub_menu'));
+      }else{
+       
+        return view('admin.master.taxi.carmake.index', compact('page', 'main_menu', 'sub_menu'));
+
+      }
     }
 
     public function fetch(QueryFilterContract $queryFilter)
     {
+        $page = trans('pages_names.fetch_car_make');
+
         $query = $this->make->query();//->active()
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
+      
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.carmake._make', compact('results'));
+      }else{
+       
+        return view('admin.master.taxi.carmake._make',  compact('results'));
+
+      }
     }
 
     public function create()
@@ -51,13 +66,19 @@ class CarMakeController extends BaseController
         $main_menu = 'master';
         $sub_menu = 'car_make';
 
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
+
         return view('admin.master.carmake.create', compact('page', 'main_menu', 'sub_menu'));
+      }else{
+       
+        return view('admin.master.taxi.carmake.create', compact('page', 'main_menu', 'sub_menu'));
+
+      }
     }
 
     public function store(Request $request)
     {
         Validator::make($request->all(), [
-            'transport_type' => 'required',
             'name' => 'required',
             'vehicle_make_for' => 'required'
         ])->validate();
@@ -81,15 +102,22 @@ class CarMakeController extends BaseController
         $main_menu = 'master';
         $sub_menu = 'car_make';
         $item = $make;
+        
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.carmake.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+      }else{
+       
+        return view('admin.master.taxi.carmake.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+
+      }
     }
 
     public function update(Request $request, CarMake $make)
     {
 
         Validator::make($request->all(), [
-            'transport_type' => 'required',
+            'transport_type' => 'sometimes|required',
             'name' => 'required',
             'vehicle_make_for' => 'required'
         ])->validate();

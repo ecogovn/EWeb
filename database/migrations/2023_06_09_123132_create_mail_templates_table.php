@@ -13,6 +13,7 @@ class CreateMailTemplatesTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('mail_templates')) {
         Schema::create('mail_templates', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('mail_type');
@@ -21,6 +22,7 @@ class CreateMailTemplatesTable extends Migration
             $table->timestamps();
             
         });
+      }
     }
 
     /**

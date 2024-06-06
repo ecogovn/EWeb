@@ -22,6 +22,7 @@ use App\Models\Request\Request as RequestModel;
 use App\Transformers\Requests\PackagesTransformer;
 use App\Models\Master\PackageType;
 use App\Base\Constants\Auth\Role;
+use App\Models\Admin\ZoneTypePackagePrice;
 
 /**
  * @group User-trips-apis
@@ -56,32 +57,45 @@ class EtaController extends ApiController
             $this->throwCustomException('service not available with this location');
         }
 
-        if ($request->has('vehicle_type')) {
+        $app_for = config('app.app_for');
 
-
-            if($request->has('transport_type')){
-
-                $type = $zone_detail->zoneType()->where(function($query)use($request){
-                    $query->where('transport_type',$request->transport_type)->orWhere('transport_type','both');
-                })->where('id', $request->input('vehicle_type'))->active()->first();
-
-            }else{
+        if($app_for=='taxi' || $app_for=='delivery')
+        {
+            if ($request->has('vehicle_type')) {
                 $type = $zone_detail->zoneType()->where('id', $request->input('vehicle_type'))->active()->first();
+            } else {
+                $type = $zone_detail->zoneType()->active()->get();
             }
-        } else {
-
-            if($request->has('transport_type')){
-
-                $type = $zone_detail->zoneType()->where(function($query)use($request){
-                    $query->where('transport_type',$request->transport_type)->orWhere('transport_type','both');
-                })->active()->get();
+        }else{
+            if ($request->has('vehicle_type')) {
 
 
-            }else{
+                if($request->has('transport_type')){
 
-                $type = $zone_detail->zoneType;
+                    $type = $zone_detail->zoneType()->where(function($query)use($request){
+                        $query->where('transport_type',$request->transport_type)->orWhere('transport_type','both');
+                    })->where('id', $request->input('vehicle_type'))->active()->first();
 
+                }else{
+                    $type = $zone_detail->zoneType()->where('id', $request->input('vehicle_type'))->active()->first();
+                }
+            } else {
+
+                if($request->has('transport_type')){
+
+                    $type = $zone_detail->zoneType()->where(function($query)use($request){
+                        $query->where('transport_type',$request->transport_type)->orWhere('transport_type','both');
+                    })->active()->get();
+
+
+                }else{
+
+                    $type = $zone_detail->zoneType;
+
+                }
             }
+
+
         }
 
         if(access()->hasRole(Role::DRIVER)){
@@ -97,6 +111,7 @@ class EtaController extends ApiController
                 $this->throwCustomException('Your Vehicle Type is not associated with this zone');
             }
         }
+
 
         $result = fractal($type, new EtaTransformer);
 
@@ -172,8 +187,22 @@ class EtaController extends ApiController
             'pick_lng'  => 'required',
         ]);
 
+        $app_for = config('app.app_for');
 
+        if($app_for=='taxi' || $app_for=='delivery')
+        {
+
+        $zone_detail = find_zone(request()->input('pick_lat'), request()->input('pick_lng'));
+
+        $zone_type_package_ids = ZoneTypePackagePrice::where('zone_id',$zone_detail->id)->pluck('package_type_id')->toArray(); 
+
+        $type = PackageType::active()->whereIn('id',$zone_type_package_ids)->get();
+        
+
+        }else{
         $type = PackageType::where('transport_type',$request->transport_type)->orWhere('transport_type', 'both')->active()->get();
+
+        }
 
         $result = fractal($type, new PackagesTransformer);
 

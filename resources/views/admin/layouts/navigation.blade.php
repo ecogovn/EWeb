@@ -1,6 +1,7 @@
 
 @php
 
+$app_for = config('app.app_for');
 
 if(str_contains((string)request()->path(),'translations')){
   $main_menu = 'settings';
@@ -57,11 +58,11 @@ if(str_contains((string)request()->path(),'translations')){
           </li>
           @endif
 
-          {{--  @if(auth()->user()->can('onboarding-screen'))
+          @if(auth()->user()->can('onboarding-screen'))
           <li class="{{ 'onboarding' == $sub_menu ? 'active' : '' }}">
             <a href="{{url('/system/settings/onboarding')}}"><i class="fa fa-circle-thin"></i>@lang('pages_names.onboarding_screen')</a>
           </li>
-          @endif  --}}
+          @endif  
           @if(auth()->user()->can('invoicecms'))
           <li class="{{ 'cms_invoice' == $sub_menu ? 'active' : '' }}">
             <a href="{{url('/cms/invoicecms')}}"><i class="fa fa-circle-thin"></i>@lang('pages_names.invoice_cms')</a>
@@ -113,7 +114,7 @@ if(str_contains((string)request()->path(),'translations')){
             <a href="{{url('/fleet_needed_doc')}}"><i class="fa fa-circle-thin"></i>@lang('pages_names.fleet_needed_doc')</a>
           </li>
           @endif
-          @if(auth()->user()->can('manage-goods-types'))
+          @if(auth()->user()->can('manage-goods-types')  && ($app_for !== 'taxi'))
                 <li class="{{ 'goods_type' == $sub_menu ? 'active' : '' }}">
                     <a href="{{url('/goods-types')}}"><i class="fa fa-circle-thin"></i>@lang('pages_names.goods_types')</a>
                 </li>
@@ -183,14 +184,7 @@ if(str_contains((string)request()->path(),'translations')){
         </a>
       </li>
       @endif
-     {{--  @if(auth()->user()->can('view-requests'))
-      <li class="{{'request' == $main_menu ? 'active' : '' }}">
-        <a href="{{url('/requests')}}">
-          <i class="fa fa-tasks"></i> <span>@lang('pages_names.request')</span>
-        </a>
-      </li>
-      @endif --}}
-         @if(auth()->user()->can('view-requests'))
+         @if(auth()->user()->can('view-requests') && ($app_for !== 'delivery'))
         <li class="treeview {{ 'trip-request' == $main_menu ? 'active menu-open' : '' }}">
           <a href="javascript: void(0);">
             <i class="fa fa-map"></i>
@@ -237,7 +231,7 @@ if(str_contains((string)request()->path(),'translations')){
         </li>
          @endif
 
-         @if(auth()->user()->can('view-delivery-requests'))
+         @if(auth()->user()->can('view-delivery-requests') && ($app_for !== 'taxi'))
         <li class="treeview {{ 'delivery-trip-request' == $main_menu ? 'active menu-open' : '' }}">
           <a href="javascript: void(0);">
             <i class="fa fa-map"></i>

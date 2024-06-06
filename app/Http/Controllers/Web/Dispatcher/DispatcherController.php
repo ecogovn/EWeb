@@ -21,6 +21,7 @@ use Kreait\Firebase\Contract\Database;
 use App\Models\Request\RequestMeta;
 use App\Models\Admin\Driver;
 use App\Jobs\Notifications\SendPushNotification;
+use Config;
 use Log;
 
 class DispatcherController extends BaseController
@@ -205,7 +206,8 @@ class DispatcherController extends BaseController
         $request =(object) $request->all();
         // $type = PackageType::where('transport_type','taxi')->orWhere('transport_type', 'both')->active()->get();
 
-        return view('dispatch-new.book-ride',compact('request'));
+        $app_for = config('app.app_for');
+        return view('dispatch-new.book-ride',compact('request','app_for'));
     }
       /**
     * List Packages
@@ -222,6 +224,10 @@ class DispatcherController extends BaseController
 
         // echo "sdfsdf";
         // exit;
+        $app_for = config('app.app_for');
+        if($app_for == 'taxi' || $app_for == "delivery"){
+            $type = PackageType::active();
+        }
         if($request->transport_type == "both")
         {
             $type1 = PackageType::Where('transport_type', 'both')->orWhere('transport_type', 'delivery')->orWhere('transport_type', 'taxi')->active();

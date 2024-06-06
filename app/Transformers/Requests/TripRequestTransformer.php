@@ -13,7 +13,7 @@ use App\Base\Constants\Masters\PaymentType;
 use App\Base\Constants\Setting\Settings;
 use App\Transformers\Requests\RequestStopsTransformer;
 use App\Transformers\Requests\RequestProofsTransformer;
-
+use Log;
 
 class TripRequestTransformer extends Transformer
 {
@@ -46,7 +46,6 @@ class TripRequestTransformer extends Transformer
         $params =  [
             'id' => $request->id,
             'request_number' => $request->request_number,
-            'transport_type' => $request->transport_type,
             'ride_otp'=>$request->ride_otp,
             'is_later' => $request->is_later,
             'user_id' => $request->user_id,
@@ -99,7 +98,6 @@ class TripRequestTransformer extends Transformer
             'is_round_trip'=>$request->is_round_trip,
             'rental_package_name'=>$request->rentalPackage?$request->rentalPackage->name:'-',
             'show_drop_location'=>false,
-            'show_otp_feature'=>true,
             'request_eta_amount'=>$request->request_eta_amount,
             'show_request_eta_amount'=>true,
             'offerred_ride_fare'=>$request->offerred_ride_fare,
@@ -119,9 +117,15 @@ class TripRequestTransformer extends Transformer
             'payment_type'=>$request->zoneType->payment_type,
             'discounted_total'=>$request->discounted_total,
             'poly_line' => $request->poly_line,
-
+            'is_pet_available' => $request->is_pet_available??0,
+            'is_luggage_available' => $request->is_luggage_available??0,
 
         ];
+        if(!$request->if_dispatch){
+            $params['show_otp_feature'] = true;
+        }else{
+            $params['show_otp_feature'] = false;
+        }
             $params['completed_ride'] =false;
             $params['later_ride'] =false;
             $params['cancelled_ride'] =false;
@@ -206,24 +210,6 @@ class TripRequestTransformer extends Transformer
             // You might want to throw an exception or return an error response
         }
 
-//         $zone_type_price = $request->zoneType->zoneTypePrice()->where('price_type', $ride_type)->first();
-
-// Log::info($zone_type_price);
-
-//         if ($request->is_bid_ride == false) {
-
-//          $zone_type_price = $request->zoneType->zoneTypePrice()->where('price_type', $ride_type)->first();
-
-//          if($zone_type_price){
-//             $params['free_waiting_time_in_mins_before_trip_start'] = $zone_type_price->free_waiting_time_in_mins_before_trip_start;
-
-//             $params['free_waiting_time_in_mins_after_trip_start'] = $zone_type_price->free_waiting_time_in_mins_after_trip_start;
-
-//             $params['waiting_charge'] = $zone_type_price->waiting_charge;
-
-//          }
-
-//         }
 
         if($request->requestRating()->exists()){
 
@@ -292,11 +278,17 @@ class TripRequestTransformer extends Transformer
 
         }
 
-        if($request->transport_type=='delivery'){
-        $params['enable_shipment_load_feature'] = get_settings(Settings::ENABLE_SHIPMENT_LOAD_FEATURE);
-        $params['enable_shipment_unload_feature'] = get_settings(Settings::ENABLE_SHIPMENT_UNLOAD_FEATURE);
-        $params['enable_digital_signature'] = get_settings(Settings::ENABLE_DIGITAL_SIGNATURE);
+        $app_for = config('app.app_for');
 
+        $transportType = $request->transport_type ?? $app_for;
+
+        $params['transport_type'] =  $transportType;
+
+
+        if ($transportType==="delivery") {
+            $params['enable_shipment_load_feature'] = get_settings(Settings::ENABLE_SHIPMENT_LOAD_FEATURE);
+            $params['enable_shipment_unload_feature'] = get_settings(Settings::ENABLE_SHIPMENT_UNLOAD_FEATURE);
+            $params['enable_digital_signature'] = get_settings(Settings::ENABLE_DIGITAL_SIGNATURE);
         }
 
         return $params;

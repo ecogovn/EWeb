@@ -47,21 +47,43 @@
                <span class="text-danger">{{ $errors->first('transport_type') }}</span>
            </div>
        </div>
-</div>
-<div class="row">
-    <div class="col-sm-6">
+   <div class="col-sm-6">
         <div class="form-group">
             <label for="type">@lang('view_pages.select_type')
                 <span class="text-danger">*</span>
             </label>
             <select name="type" id="type" class="form-control" required>
                 <option value="" >@lang('view_pages.select_type')</option>
-
             </select>
-            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" >
+      <div class="form-group">
+            <label for="admin_commision_type">@lang('view_pages.admin_commision_type')<span class="text-danger">*</span></label>
+            <select name="admin_commision_type" id="admin_commision_type" class="form-control" required>
+                    <option value="" >@lang('view_pages.select_type')</option>
+                    <option value="2" {{ '2' }}>@lang('view_pages.fixed')</option>
+                    <option value="1" {{ '1' }}>@lang('view_pages.percentage')</option>
+                </select>
+            <span class="text-danger">{{ $errors->first('admin_commision_type') }}</span>
+        </div>
+    </div>
+    <div class="col-sm-6" >
+      <div class="form-group">
+            <label for="admin_commision">@lang('view_pages.admin_commision')<span class="text-danger">*</span></label>
+            <input class="form-control" type="text" id="admin_commision" name="admin_commision" value="{{old('admin_commision')}}" required="" placeholder="@lang('view_pages.enter') @lang('view_pages.admin_commision')">
+            <span class="text-danger">{{ $errors->first('admin_commision') }}</span>
+        </div>
+    </div>
+    <div class="col-sm-6" >
+      <div class="form-group">
+            <label for="service_tax">@lang('view_pages.service_tax_in_percentage')<span class="text-danger">*</span></label>
+            <input class="form-control" type="text" id="service_tax" name="service_tax" value="{{old('service_tax')}}" required="" placeholder="@lang('view_pages.enter') @lang('view_pages.service_tax')">
+            <span class="text-danger">{{ $errors->first('service_tax') }}</span>
+        </div>
     </div>
 <div class="col-sm-6">
-<div class="form-group">
+<div class="form-group" style="padding-right: 30px;">
 <label for="payment_type">@lang('view_pages.payment_type')
     <span class="text-danger">*</span>
 </label>

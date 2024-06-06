@@ -34,13 +34,20 @@ class ChatController extends Controller
             $user = Auth::user();  
             $latestMessages = ChatMessage::select(DB::raw('MAX(created_at) as latest_message_date'))->groupBy('chat_id');  
            
-            $user_details = Chat::with('user_detail')->join('chat_messages', function ($join) use ($latestMessages) {
-               $join->on('chat.id', '=', 'chat_messages.chat_id')
-                    ->whereIn('chat_messages.created_at', $latestMessages);
-           }) 
-           ->select('chat.*', 'chat_messages.message','chat_messages.created_at as created_date',DB::raw('(SELECT COUNT(*) FROM chat_messages WHERE chat.id = chat_messages.chat_id and chat_messages.unseen_count = 0) as count'))
-           ->orderBy('chat_messages.created_at', 'desc')
-           ->get(); 
+            $user_details = Chat::with('user_detail')
+    ->join('chat_messages', function ($join) use ($latestMessages) {
+        $join->on('chat.id', '=', 'chat_messages.chat_id')
+            ->whereIn('chat_messages.created_at', $latestMessages);
+    })
+    ->whereHas('user_detail') // Add this line to filter out chats without user details
+    ->select(
+        'chat.*', 
+        'chat_messages.message', 
+        'chat_messages.created_at as created_date', 
+        DB::raw('(SELECT COUNT(*) FROM chat_messages WHERE chat.id = chat_messages.chat_id and chat_messages.unseen_count = 0) as count')
+    )
+    ->orderBy('chat_messages.created_at', 'desc')
+    ->get();
 
            
            if(count($user_details) > 0)

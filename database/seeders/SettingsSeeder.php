@@ -16,7 +16,16 @@ class SettingsSeeder extends Seeder
      *
      * @var array
      */
-    protected $settings_from_seeder = [
+
+    protected $app_for;
+
+    protected $settings_from_seeder;
+
+    public function __construct()
+    {
+        $this->app_for == config('app.app_for');
+
+        $this->settings_from_seeder = [
 
         SettingSlug::SERVICE_TAX => [
             'category'=>SettingCategory::TRIP_SETTINGS,
@@ -75,34 +84,6 @@ class SettingsSeeder extends Seeder
             'option_value' => null,
             'group_name' => null,
         ],
-        SettingSlug::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE => [
-            'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => 5,
-            'field' => SettingValueType::TEXT,
-            'option_value' => null,
-            'group_name' => null,
-        ],
-         SettingSlug::ENABLE_SHIPMENT_LOAD_FEATURE => [
-            'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => '1',
-            'field' => SettingValueType::SELECT,
-            'option_value' => '{"yes":1,"no":0}',
-            'group_name' => null,
-        ],
-        SettingSlug::ENABLE_SHIPMENT_UNLOAD_FEATURE => [
-            'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => '1',
-            'field' => SettingValueType::SELECT,
-            'option_value' => '{"yes":1,"no":0}',
-            'group_name' => null,
-        ],
-        SettingSlug::ENABLE_DIGITAL_SIGNATURE => [
-            'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => '1',
-            'field' => SettingValueType::SELECT,
-            'option_value' => '{"yes":1,"no":0}',
-            'group_name' => null,
-        ],
          SettingSlug::USER_CAN_MAKE_A_RIDE_AFTER_X_MINIUTES => [
             'category'=>SettingCategory::TRIP_SETTINGS,
             'value' => 30,
@@ -143,14 +124,6 @@ class SettingsSeeder extends Seeder
             'value' => 1,
              'field' => SettingValueType::SELECT,
              'option_value' => '{"yes":1,"no":0}',
-             'group_name' => null,
-        ],
-    //General category settings
-        SettingSlug::ENABLE_MODULES_FOR_APPLICATIONS => [
-            'category'=>SettingCategory::GENERAL,
-             'value' => "both",
-             'field' => SettingValueType::SELECT,
-             'option_value' => '{"taxi":"taxi","delivery":"delivery","both":"both"}',
              'group_name' => null,
         ],
         SettingSlug::LOGO => [
@@ -361,7 +334,7 @@ class SettingsSeeder extends Seeder
         ],
         SettingSlug::PAYSTACK_TEST_SECRET_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'pk_test_527da4a4be4324509fbd32906d03d826eefdb395',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::PAYSTACK_SETTINGS,
@@ -376,7 +349,7 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::PAYSTACK_TEST_PUBLISHABLE_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'pk_test_527da4a4be4324509fbd32906d03d826eefdb395',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::PAYSTACK_SETTINGS,
@@ -476,7 +449,7 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::RAZOR_PAY_TEST_API_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kmfgktmkgktmg',
+            'value' => 'rzp_test_b444CSYRGAtdnV',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::RAZOR_PAY_SETTINGS,
@@ -497,7 +470,7 @@ class SettingsSeeder extends Seeder
         ],
         SettingSlug::RAZOR_PAY_TEST_SECRECT_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'rktmgktrhmktmkhmt',
+            'value' => 'your-secret-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::RAZOR_PAY_SETTINGS,
@@ -518,14 +491,14 @@ class SettingsSeeder extends Seeder
         ],
         SettingSlug::KHALTI_PAY_TEST_API_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kmekmtkgktkhthmktk',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::KHALTI_PAY_SETTINGS,
         ],
         SettingSlug::KHALTI_PAY_LIVE_API_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kmekmtkgktkhthmktk',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::KHALTI_PAY_SETTINGS,
@@ -548,14 +521,14 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::MERCADOPAGO_TEST_PUBLIC_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kemtktmkgmtkhktkthkh',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::MERCADOPAGO_SETTINGS,
         ],
         SettingSlug::MERCADOPAGO_LIVE_PUBLIC_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kemtktmkgmtkhktkthkh',
+            'value' => 'your-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::MERCADOPAGO_SETTINGS,
@@ -563,14 +536,14 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::MERCADOPAGO_TEST_ACCESS_TOKEN => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kembkmtrkbkmykykkyyhyk',
+            'value' => 'your-token',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::MERCADOPAGO_SETTINGS,
         ],
         SettingSlug::MERCADOPAGO_LIVE_ACCESS_TOKEN => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kembkmtrkbkmykykkyyhyk',
+            'value' => 'your-token',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::MERCADOPAGO_SETTINGS,
@@ -611,7 +584,7 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::STRIPE_TEST_SECRET_KEY => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'kmkkmkkjnjnkjnnnkjks',
+            'value' => 'your-secret-key',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::STRIPE_SETTINGS,
@@ -643,7 +616,7 @@ class SettingsSeeder extends Seeder
 
          SettingSlug::PAYPAL_SANDBOX_CLIENT_ID => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'jnjjhhjvvgjjkjihygv-6moi5XQJRY-w3SrmAFFk',
+            'value' => 'your-client-id',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::PAYPAL_SETTINGS,
@@ -651,7 +624,7 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::PAYPAL_SANDBOX_CLIENT_SECRECT => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'jnjjnj-5sdI8-ah3BvdiqDyuAvz2Yh',
+            'value' => 'your-secret',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::PAYPAL_SETTINGS,
@@ -659,7 +632,7 @@ class SettingsSeeder extends Seeder
 
         SettingSlug::PAYPAL_SANDBOX_APP_ID => [
             'category'=>SettingCategory::INSTALLATION,
-            'value' => 'APP-jnjjnjjn',
+            'value' => 'your=app-id',
             'field' => SettingValueType::TEXT,
             'option_value' => null,
             'group_name' => SettingSubGroup::PAYPAL_SETTINGS,
@@ -830,13 +803,6 @@ class SettingsSeeder extends Seeder
             'option_value' => null,
             'group_name' => null,
         ],
-        SettingSlug::SHOW_RENTAL_RIDE_FEATURE => [
-            'category'=>SettingCategory::GENERAL,
-            'value' => '1',
-            'field' => SettingValueType::SELECT,
-            'option_value' => '{"yes":1,"no":0}',
-            'group_name' => null,
-        ],
          SettingSlug::SHOW_RIDE_OTP_FEATURE => [
             'category'=>SettingCategory::GENERAL,
             'value' => '1',
@@ -935,23 +901,150 @@ class SettingsSeeder extends Seeder
             'option_value' => null,
             'group_name' => null,
         ],
-        SettingSlug::BIDDING_LOW_PERCENTAGE => [
+        SettingSlug::ENABLE_DRIVER_PREFERENCE_FOR_USER => [
             'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => 50,
-            'field' => SettingValueType::TEXT,
-            'option_value' => 0,
+            'value' => '1',
+            'field' => SettingValueType::SELECT,
+            'option_value' => '{"yes":1,"no":0}',
             'group_name' => null,
         ],
-        SettingSlug::BIDDING_HIGH_PERCENTAGE => [
+        SettingSlug::ENABLE_PET_PREFERENCE_FOR_USER => [
             'category'=>SettingCategory::TRIP_SETTINGS,
-            'value' => 50,
-            'field' => SettingValueType::TEXT,
-            'option_value' => 0,
+            'value' => '1',
+            'field' => SettingValueType::SELECT,
+            'option_value' => '{"yes":1,"no":0}',
+            'group_name' => null,
+        ], 
+         SettingSlug::ENABLE_LUGGAGE_PREFERENCE_FOR_USER => [
+            'category'=>SettingCategory::TRIP_SETTINGS,
+            'value' => '1',
+            'field' => SettingValueType::SELECT,
+            'option_value' => '{"yes":1,"no":0}',
             'group_name' => null,
         ],
-
     ];
 
+
+        if ($this->app_for == 'bidding') {
+            $this->settings_from_seeder = array_merge($this->settings_from_seeder, [
+                SettingSlug::SHOW_RENTAL_RIDE_FEATURE => [
+                    'category'=>SettingCategory::GENERAL,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::BIDDING_LOW_PERCENTAGE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => 50,
+                    'field' => SettingValueType::TEXT,
+                    'option_value' => 0,
+                    'group_name' => null,
+                ],
+                SettingSlug::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => 5,
+                    'field' => SettingValueType::TEXT,
+                    'option_value' => null,
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_SHIPMENT_LOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_SHIPMENT_UNLOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_DIGITAL_SIGNATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::BIDDING_LOW_PERCENTAGE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => 50,
+                    'field' => SettingValueType::TEXT,
+                    'option_value' => 0,
+                    'group_name' => null,
+                ],                
+                SettingSlug::BIDDING_AMOUNT_INCREASE_OR_DECREASE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => 10,
+                    'field' => SettingValueType::TEXT,
+                    'option_value' => 0,
+                    'group_name' => null,
+                ],                
+            ]);
+        }
+
+        if ($this->app_for == 'super' || $this->app_for == 'bidding') {
+            $this->settings_from_seeder = array_merge($this->settings_from_seeder, [
+                SettingSlug::ENABLE_MODULES_FOR_APPLICATIONS => [
+                    'category'=>SettingCategory::GENERAL,
+                    'value' => "both",
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"taxi":"taxi","delivery":"delivery","both":"both"}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_SHIPMENT_LOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_SHIPMENT_UNLOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_DIGITAL_SIGNATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+            ]);
+        }
+
+        if ($this->app_for == 'delivery') {
+            $this->settings_from_seeder = array_merge($this->settings_from_seeder, [
+                SettingSlug::ENABLE_SHIPMENT_LOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_SHIPMENT_UNLOAD_FEATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+                SettingSlug::ENABLE_DIGITAL_SIGNATURE => [
+                    'category'=>SettingCategory::TRIP_SETTINGS,
+                    'value' => '1',
+                    'field' => SettingValueType::SELECT,
+                    'option_value' => '{"yes":1,"no":0}',
+                    'group_name' => null,
+                ],
+            ]);
+        }
+    }
 
     /**
      * Run the database seeds.

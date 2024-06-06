@@ -30,16 +30,25 @@ class CarModelController extends BaseController
 
         $main_menu = 'master';
         $sub_menu = 'car_model';
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.carmodel.index', compact('page', 'main_menu', 'sub_menu'));
+        }else{
+        return view('admin.master.taxi.carmodel.index', compact('page', 'main_menu', 'sub_menu'));
+
+        }
     }
 
     public function fetch(QueryFilterContract $queryFilter)
     {
         $query = $this->model->query();//->active()
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
-
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+        {
         return view('admin.master.carmodel._model', compact('results'));
+        }else{
+        return view('admin.master.taxi.carmodel._model', compact('results'));
+        }
     }
 
     public function create()
@@ -50,7 +59,12 @@ class CarModelController extends BaseController
         $sub_menu = 'car_model';
         $makes = CarMake::active()->get();
 // dd($makes);
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
+
         return view('admin.master.carmodel.create', compact('page', 'main_menu', 'sub_menu', 'makes'));
+        }else{
+            return view('admin.master.taxi.carmodel.create', compact('page', 'main_menu', 'sub_menu', 'makes'));
+        }
     }
 
     public function store(Request $request)
@@ -80,7 +94,15 @@ class CarModelController extends BaseController
         $sub_menu = 'car_model';
         $item = $model;
 
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
+
         return view('admin.master.carmodel.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+        }else{
+        $makes = CarMake::active()->get();
+
+            return view('admin.master.taxi.carmodel.update', compact('item', 'makes', 'page', 'main_menu', 'sub_menu'));
+
+        }
     }
 
     public function update(Request $request, CarModel $model)
@@ -101,6 +123,7 @@ class CarModelController extends BaseController
         $model->update(['active' => $status]);
 
         $message = trans('succes_messages.car_model_status_changed_succesfully');
+
         return redirect('carmodel')->with('success', $message);
     }
 

@@ -42,6 +42,7 @@ class NoDriverFoundNotifyJob implements ShouldQueue
         foreach ($this->requestids as $key => $request_id) {
             $request_detail = Request::find($request_id);
             $request_detail->update(['is_cancelled'=>true,'cancel_method'=>0,'cancelled_at'=>date('Y-m-d H:i:s')]);
+            $this->database->getReference('bid-meta/'.$request_detail->id)->remove();            
             $request_detail->fresh();
             $request_result =  fractal($request_detail, new CronTripRequestTransformer);
             $pus_request_detail = $request_result->toJson();

@@ -16,13 +16,15 @@ class CreateVehicleTypeRequest extends BaseRequest
         return [
             'name' => 'required|max:50',
             // 'icon'=>$this->vechicleTypeImageRule(),
-            // 'capacity'=>'required|min:1',
+            'capacity'=>'sometimes|min:1',
+            'maximum_weight_can_carry'=>'sometimes|min:1',
+            'size'=>'sometimes|min:1',
             'description'=>'required|max:25',
             'short_description'=>'required|max:25',
             'supported_vehicles'=>'required',
             'icon_types_for' => 'required',
             // 'is_accept_share_ride'=>'required|boolean',
-            'trip_dispatch_type'=>'required',
+            'trip_dispatch_type'=>'sometimes',
 
         ];
     }

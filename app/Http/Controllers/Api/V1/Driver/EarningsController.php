@@ -357,7 +357,7 @@ class EarningsController extends BaseController
 
         $currency_symbol = auth()->user()->countryDetail->currency_symbol;
 
-        return response()->json(['success'=>true,'message'=>'weekly_earnings','data'=>['week_days'=>$weekDays,'current_date'=>$converted_current_date,'current_week_number'=>$current_week_number,'start_of_week'=>$converted_start_of_week,'end_of_week'=>$converted_end_of_week,'disable_next_week'=>$disable_next_week,'disable_previous_week'=>$disable_previous_week,'total_trips_count'=>$total_trips,'total_trip_kms'=>$total_trip_kms,'total_earnings'=>$total_earnings,'total_cash_trip_amount'=>$total_cash_trip_amount,'total_wallet_trip_amount'=>$total_wallet_trip_amount,'total_cash_trip_count'=>$total_cash_trip_count,'total_wallet_trip_count'=>$total_wallet_trip_count,'currency_symbol'=>$currency_symbol,'total_hours_worked'=>$total_hours_worked]]);
+        return response()->json(['success'=>true,'message'=>'weekly_earnings','data'=>['week_days'=>$weekDays,'current_date'=>$converted_current_date,'current_week_number'=>$current_week_number,'start_of_week'=>$converted_start_of_week,'end_of_week'=>$converted_end_of_week,'disable_next_week'=>$disable_next_week,'disable_previous_week'=>$disable_previous_week,'total_trips_count'=>$total_trips,'total_trip_kms'=>$total_trip_kms),'total_earnings'=>$total_earnings),'total_cash_trip_amount'=>$total_cash_trip_amount),'total_wallet_trip_amount'=>$total_wallet_trip_amount),'total_cash_trip_count'=>$total_cash_trip_count),'total_wallet_trip_count'=>$total_wallet_trip_count),'currency_symbol'=>$currency_symbol),'total_hours_worked'=>$total_hours_worked)]]);
     }
     /**
     * Earnings Report

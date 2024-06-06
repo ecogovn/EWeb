@@ -3,7 +3,19 @@
 
 
 @section('content')
-
+<style>
+    .type .select2-container .select2-search--inline {
+        float: left;
+        position: relative;
+        top: -20px;
+        left:5px;
+    }
+    .type .select2-search{
+        height:20px;
+        width:100%;        
+    }
+</style>
+<link rel="stylesheet" href="{{ asset('assets/build/css/intlTelInput.css') }}">
 <!-- Start Page content -->
 <div class="content">
 <div class="container-fluid">
@@ -23,7 +35,7 @@
 
 <div class="col-sm-12">
 
-<form  method="post" class="form-horizontal" action="{{url('drivers/store')}}" enctype="multipart/form-data">
+<form  method="post" id="driverCreate" class="form-horizontal" action="{{url('drivers/store')}}" enctype="multipart/form-data">
 {{csrf_field()}}
 <div class="row">
 <div class="col-6">
@@ -145,7 +157,23 @@
             <span class="text-danger">{{ $errors->first('password') }}</span>
         </div>
     </div> -->
-    
+
+    <div class="col-sm-6">
+       <div class="form-group">
+           <label for="">@lang('view_pages.gender') <span class="text-danger">*</span></label>
+           <select name="gender" id="gender" class="form-control" required>
+               <option value="" selected disabled>@lang('view_pages.select')</option>
+               <option value="taxi" {{ old('transport_type') == 'male' ? 'selected' : '' }}>@lang('view_pages.male')</option>
+               <option value="delivery" {{ old('transport_type') == 'femail' ? 'selected' : '' }}>@lang('view_pages.female')</option>
+               <option value="both" {{ old('transport_type') == 'others' ? 'selected' : '' }}>@lang('view_pages.others')</option>
+           </select>
+           <span class="text-danger">{{ $errors->first('gender') }}</span>
+       </div>
+    </div>
+</div>
+
+<div class="row">
+    @if($app_for == "super" || $app_for == "bidding")
 <div class="col-sm-6">
            <div class="form-group">
                <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
@@ -158,13 +186,10 @@
                <span class="text-danger">{{ $errors->first('transport_type') }}</span>
            </div>
        </div>
-</div>
-
-
-<div class="row">
+@endif
 
     <div class="col-sm-6" style="padding-right: 50px;">
-        <div class="form-group">
+        <div class="form-group type">
             <label for="type">@lang('view_pages.select_type')
                 <span class="text-danger">*</span>
             </label>
@@ -179,13 +204,11 @@
     <div class="col-6">
         <div class="form-group">
             <label for="car_make">@lang('view_pages.car_make')<span class="text-danger">*</span></label>
-            <select name="car_make" id="car_make" class="form-control select2" required>
+            <select name="car_make" id="car_make" style="height:30px;" class="form-control select2" required>
                 <option value="" selected disabled>@lang('view_pages.select')</option>
             </select>
         </div>
 </div>
-</div>
-<div class="row">
 <div class="col-6">
     <div class="form-group">
         <label for="car_model">@lang('view_pages.car_model')<span class="text-danger">*</span></label>
@@ -254,8 +277,32 @@
 <!-- jQuery 3 -->
     <script src="{{asset('assets/vendor_components/jquery/dist/jquery.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/build/js/intlTelInput.js') }}"></script>
 
 <script>
+
+    let util = '{{ asset('assets/build/js/utils.js') }}'
+    var input = document.querySelector("#mobile");
+    var default_country = "{{get_settings('default_country_code_for_mobile_app')}}";
+    var iti = window.intlTelInput(input, {
+        initialCountry: default_country,
+        allowDropdown: true,
+        separateDialCode: true,
+        utilsScript: util,
+    });
+    $('#driverCreate').submit(function(e){
+        e.preventDefault();
+        var formData = $(this).serializeArray();
+        formData.push({name:'dial_code', value:$('.iti__selected-dial-code').text()});
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'dial_code',
+            value: $('.iti__selected-dial-code').text()
+        }).appendTo(this);
+        $.param(formData);
+        $(this).off('submit').submit();
+    })
+
    $('.select2').select2({
         placeholder : "Select ...",
     });
@@ -297,7 +344,7 @@
 
                     for(var i = 0 ; i < result.data.length ; i++)
                     {
-                        console.log(result.data[i]);
+                        // console.log(result.data[i]);
                         $("#type").append('<option  class="left" value="'+result.data[i].id+'" data-icon="'+result.data[i].icon+'"  >'+result.data[i].name+'</option>');
                     }
 
@@ -324,7 +371,7 @@
 
                     for(var i = 0 ; i < result.data.length ; i++)
                     {
-                        console.log(result.data[i]);
+                        // console.log(result.data[i]);
                         $("#company").append('<option  class="left" value="'+result.data[i].id+'" >'+result.data[i].name+'</option>');
                     }
 
@@ -382,7 +429,7 @@
                 $('#car_model').select();
             }
         });
-        alert("count==="+count);
+        // alert("count==="+count);
     }
 
     function getCarMake(value,model=''){
@@ -395,7 +442,7 @@
             },
             success: function(result)
             {
-                console.log(result);
+                // console.log(result);
                 $('#car_make').empty();
                 $("#car_make").append('<option value="" selected disabled>Select</option>');
                 result.forEach(element => {

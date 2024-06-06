@@ -44,8 +44,13 @@ class PromoCodeController extends BaseController
         $query = $this->promo->query();
 
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
-
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+        {
         return view('admin.promo._promo', compact('results'));
+        }else{
+        return view('admin.promo.taxi._promo', compact('results'));
+
+        }
     }
 
     public function create()
@@ -54,24 +59,13 @@ class PromoCodeController extends BaseController
         $cities = ServiceLocation::companyKey()->whereActive(true)->get();
         $main_menu = 'manage-promo';
         $sub_menu = '';
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.promo.create', compact('cities', 'page', 'main_menu', 'sub_menu'));
+        }else{
+        return view('admin.promo.taxi.create', compact('cities', 'page', 'main_menu', 'sub_menu'));
+        }
     }
-
-    // public function store(CreatePromoRequest $request)
-    // {
-
-    //     $created_params = $request->only(['code','service_location_id','minimum_trip_amount','maximum_discount_amount','discount_percent','total_uses','uses_per_user','transport_type']);
-
-    //     $created_params['from'] = now()->parse($request->from)->startOfDay()->toDateTimeString();
-    //     $created_params['to'] = now()->parse($request->to)->endOfDay()->toDateTimeString();
-
-    //     $this->promo->create($created_params);
-
-    //     $message = trans('succes_messages.promo_added_succesfully');
-
-    //     return redirect('promo')->with('success', $message);
-    // }
     public function store(Request $request)
     {
     //dd($request->all());
@@ -86,14 +80,21 @@ class PromoCodeController extends BaseController
             'from' => 'required|date_format:Y-m-d',
             'to' => 'required|date_format:Y-m-d|after:from',
         ]);
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+      {
+
         if(isset($request->transport_type)){
             $transport_type = $request->transport_type;
         }else{
             $transport_type = 'food_delivery';
         }
+      }
+        $promo_Exists = Promo::where('code', $request->code)->exists();
 
-
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+      {
         $promo_Exists = Promo::where('code', $request->code)->where('transport_type', $transport_type)->exists();
+      }   
 
         if ($promo_Exists)
         {
@@ -109,8 +110,6 @@ class PromoCodeController extends BaseController
         $serviceLocationID = $request->service_location_id;
 
 
-        // if($request->promo_code_users_availabe == "no")
-        // {
             foreach ($request->service_location_id as $serviceLocationID)
             {
                 $promo_user_params['promo_code_id'] = $promoCode->id;
@@ -119,29 +118,6 @@ class PromoCodeController extends BaseController
             }
 
 
-        //}
-        // else{
-        //     $validator = Validator::make($request->all(), [
-        //         'user' => 'required|',
-        //     ]);
-        //     if ($validator->fails()) {
-        //         throw ValidationException::withMessages(['user' => __('Please select the user')]);
-        //     }
-        //     foreach ($request->service_location_id as $serviceLocationID)
-        //     {
-        //         foreach($request->user as $key=>$user){
-
-        //             $promo_user_params['promo_code_id'] = $promoCode->id;
-        //             $promo_user_params['user_id'] = $user;
-        //             $promo_user_params['service_location_id'] = $serviceLocationID;
-
-        //             // PromoCodeUser::create($promo_user_params);
-
-        //         }
-        //     }
-
-
-        // }
         $message = trans('succes_messages.promo_added_succesfully');
         return redirect('promo')->with('success', $message);
     }
@@ -174,35 +150,14 @@ class PromoCodeController extends BaseController
         ->where('role_user.role_id',2)
         ->select('users.*', DB::raw('CASE WHEN promo_counts.user_id IS NOT NULL THEN 1 ELSE 0 END AS user_status'))
         ->get();
-        // $users = PromoCodeUser::where();
-        // dd($users);
-        // dd($promo,$cities,$users);
 
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+        {
         return view('admin.promo.update', compact('cities','users', 'item', 'page', 'main_menu', 'sub_menu'));
+        }else{
+        return view('admin.promo.taxi.update', compact('cities','users', 'item', 'page', 'main_menu', 'sub_menu'));
+        }
     }
-
-    // public function getById(Promo $promo)
-    // {
-    //     $page = trans('pages_names.edit_promo');
-    //     $cities = ServiceLocation::whereActive(true)->get();
-    //     $main_menu = 'manage-promo';
-    //     $sub_menu = '';
-    //     $item = $promo;
-
-    //     return view('admin.promo.update', compact('cities', 'item', 'page', 'main_menu', 'sub_menu'));
-    // }
-
-    // public function update(UpdatePromoRequest $request, Promo $promo)
-    // {
-    //     $updated_params = $request->all();
-    //     $promo->update($updated_params);
-
-    //     $message = trans('succes_messages.promo_updated_succesfully');
-
-    //     return redirect('promo')->with('success', $message);
-    // }
-
-
 
     public function update(UpdatePromoRequest $request, Promo $promo)
     {
@@ -220,16 +175,27 @@ class PromoCodeController extends BaseController
             'from' => 'required|date_format:Y-m-d',
             'to' => 'required|date_format:Y-m-d|after:from',
         ]);
-        if(isset($request->transport_type)){
-            $transport_type = $request->transport_type;
-        }else{
-            $transport_type = 'food_delivery';
-        }
-        $promo_Exists = Promo::where('code', $request->code)->where('id','!=', $promo->id)->where('transport_type', $transport_type)->exists();
-
-        if ($promo_Exists)
+        if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
         {
-            throw ValidationException::withMessages(['code' => __('Promo Code already exists')]);
+            if(isset($request->transport_type)){
+                $transport_type = $request->transport_type;
+            }else{
+                $transport_type = 'food_delivery';
+            }
+        }
+        if($request->code!=$promo->code)
+        {
+
+            $promo_Exists = Promo::where('code', $request->code)->exists();
+
+            if((config('app.app_for')=="super") || (config('app.app_for')=="bidding"))
+            {
+            $promo_Exists = Promo::where('code', $request->code)->where('id','!=', $promo->id)->where('transport_type', $transport_type)->exists();
+            }
+            if ($promo_Exists)
+            {
+                throw ValidationException::withMessages(['code' => __('Promo Code already exists')]);
+            }
         }
         $created_params = $request->only(['module','code','minimum_trip_amount','maximum_discount_amount','discount_percent','total_uses','uses_per_user','transport_type','promo_code_users_availabe']);
 
@@ -241,9 +207,6 @@ class PromoCodeController extends BaseController
 
         Promo::where('id', $promo->id)->update($created_params);
 
-
-        // if($request->promo_code_users_availabe == "no")
-        // {
             PromoCodeUser::where('promo_code_id', $promo->id)->delete();
             foreach ($request->service_location_id as $serviceLocationID)
             {
@@ -253,30 +216,6 @@ class PromoCodeController extends BaseController
                 PromoCodeUser::create($promo_user_params);
             }
 
-
-        // }
-        // else{
-        //     $validator = Validator::make($request->all(), [
-        //         'user' => 'required|',
-        //     ]);
-        //     if ($validator->fails()) {
-        //         throw ValidationException::withMessages(['user' => __('Please select the user')]);
-        //     }
-        //     PromoCodeUser::where('promo_code_id', $promo->id)->delete();
-        //     foreach ($request->service_location_id as $serviceLocationID)
-        //     {
-        //         foreach($request->user as $key=>$user){
-
-        //             $promo_user_params['promo_code_id'] = $promo->id;
-        //             $promo_user_params['user_id'] = $user;
-        //             $promo_user_params['service_location_id'] = $serviceLocationID;
-
-        //             PromoCodeUser::create($promo_user_params);
-
-        //         }
-        //     }
-
-        // }
         $message = trans('succes_messages.promo_added_succesfully');
         return redirect('promo')->with('success', $message);
 

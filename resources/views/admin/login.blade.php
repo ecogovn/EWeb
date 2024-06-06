@@ -27,6 +27,17 @@
 
     <!-- Fab Admin skins -->
     <link rel="stylesheet" href="{{ url('assets/css/skins/_all-skins.css') }}">
+@php 
+    $app_for = config('app.app_for');
+@endphp
+
+@if($app_for == 'taxi')
+    @php $image = asset('assets/images/taxi.jpeg'); @endphp
+@elseif($app_for == 'delivery')
+    @php $image = asset('assets/images/delivery.jpg'); @endphp
+@else
+    @php $image = asset('assets/images/bgg.png'); @endphp
+@endif
     <style>
         .error-style {
             list-style: none;
@@ -37,7 +48,7 @@
         }
 
         body {
-            background-image:linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url( '{{ login_bg() ?? asset('assets/images/bgg.png') }}' ) !important;
+            background-image:linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url( '{{ login_bg() ??  $image}}' ) !important;
             background-size: cover !important;
         }
 

@@ -492,10 +492,10 @@ class EtaTransformerTest extends Transformer
         // if trip distace is lessthan base distance, no need to calculate time price
 
         // Get Admin Commision
-        $service_fee = get_settings('admin_commission');
+        $service_fee = $zone_type->admin_commision;
         // Admin commision
         $without_discount_admin_commision = ($subtotal_price * ($service_fee / 100));
-        $tax_percent = get_settings('service_tax');
+        $tax_percent = $zone_type->service_tax;
 
         $with_out_discount_tax_amount = ($subtotal_price * ($tax_percent / 100));
 

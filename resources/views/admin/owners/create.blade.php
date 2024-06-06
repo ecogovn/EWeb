@@ -1,588 +1,301 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<!-- twitter-bootstrap-wizard css -->
-<link rel="stylesheet" href="{{ asset('taxi/assets/libs/twitter-bootstrap-wizard/prettify.css') }}">
-<!-- App Css-->
-<link href="{{ asset('taxi/assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet"
-type="text/css" />
-
+<link rel="stylesheet" href="{{ asset('assets/build/css/intlTelInput.css') }}">
+<!-- Include Bootstrap 5 styles -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-beta1/css/bootstrap.min.css" rel="stylesheet">
+ <!-- bootstrap datepicker -->
+    <link rel="stylesheet" href="{!! asset('assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') !!}">
 <style>
-.btn-group {
-flex-direction: row-reverse;
-}
+    .wizard-step {
+        display: none;
+    }
+    .wizard-step.active {
+        display: block;
+    }
+    .wizard-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .wizard-nav .btn {
+        flex: 0.2;
+    }
+    .wizard-nav .btn + .btn {
+        margin-left: 1rem;
+    }
 </style>
-<div class="row p-0 m-0">
-<div class="col-12">
-<div class="page-title-box d-flex align-items-center justify-content-between">
-<h4 class="mb-0 font-size-18">@lang('view_pages.add_owner')</h4>
 
-<div class="page-title-right">
-<ol class="breadcrumb m-0">
-<li class="breadcrumb-item"><a href="{{ url('owners/by_area',$area->id) }}">@lang('view_pages.manage_owner')</a>
-</li>
-<li class="breadcrumb-item active">@lang('view_pages.add_owner')</li>
-</ol>
-</div>
-</div>
-</div>
-</div>
+<div class="content">
+<div class="container-fluid">
 
-<div class="row p-0 m-0">
-<div class="col-12">
-<div class="card">
-<div class="card-body">
-    <span class="text-danger iban_err"></span>
-<form method="post" action="{{ url('owners/store') }}" enctype="multipart/form-data">
-@csrf
 <div class="row">
-<div class="col-lg-12">
-<div class="card">
-<div class="card-body">
-{{-- <h4 class="card-title mb-4">Basic pills Wizard
-</h4> --}}
+<div class="col-sm-12">
 
-<div id="basic-pills-wizard" class="twitter-bs-wizard">
-<ul class="twitter-bs-wizard-nav">
-<li class="nav-item">
-<a href="#owner-details" class="nav-link" data-toggle="tab">
-<span class="step-number mr-2">01</span>
-@lang('view_pages.owner_details')
-</a>
-</li>
-<li class="nav-item">
-<a href="#contact-person-details" class="nav-link" data-toggle="tab">
-<span class="step-number mr-2">02</span>
-@lang('view_pages.contact_person_details')
-</a>
-</li>
+<div class="container  mt-4 ">
+    <div class="row box p-5">
+        <div class="col-12 p-5">          
+            <form method="post" action="{{ url('owners/store') }}" enctype="multipart/form-data" id="ownerForm">
+                @csrf
+                <!-- Wizard Steps -->
+                <div class="wizard-step active" id="step1">
+                    <h5 class="mt-5">@lang('view_pages.owner_details')</h5>
+                    <div class="row">
+                        @foreach([
+                            ['label' => 'company_name', 'type' => 'text', 'required' => true],
+                            ['label' => 'owner_name', 'type' => 'text', 'required' => true],
+                            ['label' => 'email', 'type' => 'email', 'required' => true],
+                            ['label' => 'password', 'type' => 'password', 'required' => true],
+                            ['label' => 'password_confirmation', 'type' => 'password', 'required' => true],
+                            ['label' => 'address', 'type' => 'text', 'required' => true],
+                            ['label' => 'postal_code', 'type' => 'number', 'required' => true],
+                            ['label' => 'city', 'type' => 'text', 'required' => true],
+                            ['label' => 'no_of_vehicles', 'type' => 'number', 'required' => true, 'attributes' => ['min' => 1]],
+                            ['label' => 'tax_number', 'type' => 'text', 'required' => true],
+                        ] as $field)
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <label for="{{ $field['label'] }}">@lang('view_pages.' . $field['label']) @if($field['required'])<span class="text-danger">*</span>@endif</label>
+                                <input class="form-control" type="{{ $field['type'] }}" id="{{ $field['label'] }}" name="{{ $field['label'] }}" value="{{ old($field['label']) }}" @if($field['required']) required @endif placeholder="@lang('view_pages.enter') @lang('view_pages.' . $field['label'])" @foreach($field['attributes'] ?? [] as $attr => $value) {{ $attr }}="{{ $value }}" @endforeach>
+                                <span class="text-danger">{{ $errors->first($field['label']) }}</span>
+                            </div>
+                        </div>
+                        @endforeach
 
-<li class="nav-item">
-<a href="#bank-detail" class="nav-link" data-toggle="tab">
-<span class="step-number mr-2">03</span>
-@lang('view_pages.bank_details')
-</a>
-</li>
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <label for="service_location_id">@lang('view_pages.select_area') <span class="text-danger">*</span></label>
+                                <input type="hidden" name="service_location_id" id="service_location_id" class="form-control" value="{{ $area->id }}" readonly>                                
+                                <input type="text" name="service_location" id="service_location" class="form-control" value="{{ $area->name }}" readonly>
+                            </div>
+                        </div>
 
-<li class="nav-item">
-<a href="#documents" class="nav-link" data-toggle="tab">
-<span class="step-number mr-2">04</span>
-@lang('view_pages.document')
-</a>
-</li>
-</ul>
-<div class="tab-content twitter-bs-wizard-tab-content">
+                        @if($app_for !== 'taxi' && $app_for !== 'delivery')
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <label for="transport_type">@lang('view_pages.select_transport_type') <span class="text-danger">*</span></label>
+                                <select name="transport_type" id="transport_type" class="form-control">
+                                    <option value="" selected disabled>@lang('view_pages.select')</option>
+                                    <option value="taxi" {{ old('transport_type') == 'taxi' ? 'selected' : '' }}>@lang('view_pages.taxi')</option>
+                                    <option value="delivery" {{ old('transport_type') == 'delivery' ? 'selected' : '' }}>@lang('view_pages.delivery')</option>
+                                    <option value="both" {{ old('transport_type') == 'both' ? 'selected' : '' }}>@lang('view_pages.both')</option>
+                                </select>
+                            </div>
+                        </div>
+                        @endif
 
-<div class="tab-pane" id="owner-details">
-<div class="row">
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="company_name">@lang('view_pages.company_name')
-<span class="text-danger">*</span></label>
-<input class="form-control" type="text" id="company_name"
-name="company_name" value="{{ old('company_name') }}"
-required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.company_name')">
-<span
-class="text-danger">{{ $errors->first('company_name') }}</span>
-</div>
-</div>
+                    </div>
+                </div>
 
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="owner_name">@lang('view_pages.owner_name') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="owner_name"
-name="owner_name" value="{{ old('owner_name') }}"
-required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.owner_name')">
-<span
-class="text-danger">{{ $errors->first('owner_name') }}</span>
-</div>
-</div>
+                <div class="wizard-step" id="step2">
+                    <h5>@lang('view_pages.contact_person_details')</h5>
+                    <div class="row">
+                        <input type="hidden" name="dial_code" id="dial_code" value="+91">
+                        @foreach([
+                            ['label' => 'name', 'type' => 'text', 'required' => true],
+                            ['label' => 'surname', 'type' => 'text', 'required' => true],
+                            ['label' => 'mobile', 'type' => 'text', 'required' => true],
+                            ['label' => 'phone', 'type' => 'text', 'required' => false],
+                        ] as $field)
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <label for="{{ $field['label'] }}">@lang('view_pages.' . $field['label']) @if($field['required'])<span class="text-danger">*</span>@endif</label>
+                                <input class="form-control" type="{{ $field['type'] }}" id="{{ $field['label'] }}" name="{{ $field['label'] }}" value="{{ old($field['label']) }}" @if($field['required']) required @endif placeholder="@lang('view_pages.enter') @lang('view_pages.' . $field['label'])">
+                                <span class="text-danger">{{ $errors->first($field['label']) }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
 
-<div class="col-sm-4 float-left mb-md-3">
-<div class="form-group">
-<label for="email">@lang('view_pages.email') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="email" id="email"
-name="email" value="{{ old('email') }}" required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.email')">
-<span
-class="text-danger">{{ $errors->first('email') }}</span>
-</div>
-</div>
+                <div class="wizard-step" id="step3">
+                    <h5>@lang('view_pages.bank_details')</h5>
+                    <div class="row">
+                        @foreach([
+                            ['label' => 'ifsc', 'type' => 'text', 'required' => true],
+                            ['label' => 'bank_name', 'type' => 'text', 'required' => false],
+                            ['label' => 'account_no', 'type' => 'text', 'required' => false],
+                        ] as $field)
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <label for="{{ $field['label'] }}">@lang('view_pages.' . $field['label']) @if($field['required'])<span class="text-danger">*</span>@endif</label>
+                                <input class="form-control" type="{{ $field['type'] }}" id="{{ $field['label'] }}" name="{{ $field['label'] }}" value="{{ old($field['label']) }}" @if($field['required']) required @endif placeholder="@lang('view_pages.enter') @lang('view_pages.' . $field['label'])">
+                                <span class="text-danger {{ $field['label'] == 'ifsc' ? 'ifsc_err' : '' }}">{{ $errors->first($field['label']) }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
 
-<div class="col-sm-4 float-left mb-md-3">
-<div class="form-group">
-<label for="password">@lang('view_pages.password') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="password" id="password"
-name="password" value="{{ old('password') }}"
-required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.password')">
-<span
-class="text-danger">{{ $errors->first('password') }}</span>
-</div>
-</div>
+                <div class="wizard-step" id="step4">
+                    <h5>@lang('view_pages.document')</h5>
+                    <div class="row">
+                        @foreach ($needed_document as $key => $item)
+                        <input type="hidden" name="needed_document[]" value="{{ $item->id }}">
+                        <div class="col-sm-12 pb-3">
+                            <div class="col-sm-6 mb-3">
+                                <div class="form-group">
+                                    <label for="doc_name">@lang('view_pages.name') <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="text" name="doc_name" value="{{ $item->name }}" disabled>
+                                </div>
+                            </div>
+                            @if ($item->has_expiry_date)
+                           <div class="col-md-6 dateDiv">
+                                <div class="form-group">
+                                    <label for="expiry_date">@lang('view_pages.expiry_date') <span class="text-danger">*</span></label>
+                                    <input class="form-control datepicker" type="text" id="expiry_date" name="expiry_date[]"
+                                        value="{{ old('expiry_date') }}" required
+                                        placeholder="{{ now()->startOfMonth()->format('Y-m-d') }}">
+                                    <span class="text-danger">{{ $errors->first('expiry_date') }}</span>
+                                </div>
+                            </div>
+                            @endif
+                            @if ($item->has_identify_number)
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="identify_number">@lang('view_pages.identify_number') <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="text" name="identify_number[]" value="{{ old('identify_number.'.$item->identify_number) }}" placeholder="{{($item->identify_number_locale_key)}}">
+                                </div>
+                            </div>
+                            @endif
+                            <div class="col-sm-6 mb-3">
+                                <div class="form-group profile-img">
+                                    <label for="doc_file_{{ $key }}">@lang('view_pages.document') <span class="text-danger">*</span></label>
+                                    <div class="col-12" style="display: inline;">
+                                    <div class="col-md-12 float-left input-group p-0">
+                                        <span class="input-group-btn">
+                                            <span class="btn btn-default btn-file">
+                                                Browse…
+                                                <input class="form-control doc_file" type="file" id="doc_file_{{ $key }}" name="document_{{ $item->id }}" required>
+                                            </span>
+                                        </span>
+                                        <input type="text" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-md-12 float-left p-0">
+                                        <img class='img-upload' width="100px" class="rounded avatar-lg" src="" id="img_preview_{{ $key }}" />
+                                    </div>
+                                    </div>
+                                    <span class="text-danger">{{ $errors->first('doc_file.' . $item->id) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
 
-<div class="col-sm-4 float-left mb-md-3">
-<div class="form-group">
-<label
-for="password_confrim">@lang('view_pages.confirm_password')
-<span class="text-danger">*</span></label>
-<input class="form-control" type="password"
-id="password_confirmation" name="password_confirmation"
-value="{{ old('password_confirmation') }}" required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.password_confirmation')">
-<span
-class="text-danger">{{ $errors->first('password') }}</span>
+                <!-- Wizard Navigation -->
+                <div class="wizard-nav">
+                    <button type="button" class="btn btn-secondary" id="prevBtn">@lang('view_pages.previous')</button>
+                    <button type="button" class="btn btn-secondary" id="nextBtn">@lang('view_pages.next')</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">@lang('view_pages.submit')</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-</div>
-
-<div class="col-sm-12 float-left mb-md-3">
-<div class="form-group">
-<label for="address">@lang('view_pages.address') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="address"
-name="address" value="{{ old('address') }}"
-placeholder="@lang('view_pages.enter') @lang('view_pages.address')">
-<span
-class="text-danger">{{ $errors->first('address') }}</span>
-<input type="hidden" class="form-control" id="address_lat" name="address_lat">
- <input type="hidden" class="form-control" id="address_lng" name="address_lng">
-</div>
-</div>
-
-
-
-
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="postal_code">@lang('view_pages.postal_code')
-<span class="text-danger">*</span></label>
-<input class="form-control" type="number" id="postal_code"
-name="postal_code" value="{{ old('postal_code') }}"
-required="" 
-placeholder="@lang('view_pages.enter') @lang('view_pages.postal_code')">
-<span
-class="text-danger">{{ $errors->first('postal_code') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="city">@lang('view_pages.city') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="locality"
-name="city" value="{{ old('city') }}" required="" 
-placeholder="@lang('view_pages.enter') @lang('view_pages.city')">
-<span
-class="text-danger">{{ $errors->first('city') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="admin_id">@lang('view_pages.select_area')<span
-class="text-danger">*</span></label>
-<select name="service_location_id" id="service_location_id" class="form-control" readonly>
-{{-- <option value="" selected disabled> @lang('view_pages.select_area')</option> --}}
-{{-- @foreach ($services as $key => $service) --}}
-<option value="{{ $area->id }}" {{ old('service_location_id') == $area->id ? 'selected' : '' }}>{{ $area->name }}</option>
-{{-- @endforeach --}}
-</select>
-</div>
-</div>
-
-{{-- <div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="expiry_date">@lang('view_pages.expiry_date')
-<span class="text-danger">*</span></label>
-<div id="datepicker"
-class="date-pick input-group date date-custom"
-data-date-format="yyyy-mm-dd">
-<input id="expiry_date" alt="" name="expiry_date"
-placeholder="yyyy-mm-dd" type="text"
-class="form-control"
-value="{{ old('expiry_date') }}" autocomplete="off">
-<span class="input-group-addon"><i
-    class="fa fa-calendar"></i></span>
-</div>
-<span
-class="text-danger">{{ $errors->first('expiry_date') }}</span>
-</div>
-</div> --}}
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label
-for="no_of_vehicles">@lang('view_pages.no_of_vehicles')
-<span class="text-danger">*</span></label>
-<input class="form-control" type="number" min="1"
-id="no_of_vehicles" name="no_of_vehicles"
-value="{{ old('no_of_vehicles') }}" required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.no_of_vehicles')">
-<span
-class="text-danger">{{ $errors->first('no_of_vehicles') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="tax_number">@lang('view_pages.tax_number') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="tax_number"
-name="tax_number" value="{{ old('tax_number') }}"
-required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.tax_number')">
-<span
-class="text-danger">{{ $errors->first('tax_number') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="transport_type">@lang('view_pages.transport_type')<span
-class="text-danger">*</span></label>
-<select name="transport_type" id="transport_type" class="form-control" readonly>
-    <option value="" selected disabled>@lang('view_pages.select')</option>
-    <option value="taxi" {{ old('transport_type') == 'taxi' ? 'selected' : '' }}>@lang('view_pages.taxi')</option>
-    <option value="delivery" {{ old('transport_type') == 'delivery' ? 'selected' : '' }}>@lang('view_pages.delivery')</option>
-    <option value="both" {{ old('transport_type') == 'both' ? 'selected' : '' }}>@lang('view_pages.both')</option>
-</select>
-</div>
-</div>
-
-{{-- <div
-class="col-12 btn-group mt-3">
-<ul class="admin-add-btn">
-<li>
-<button type="submit"
-class="btn btn-primary mr-1 waves-effect waves-light">{{ trans('view_pages.create') }}</button>
-</li>
-</ul>
-</div> --}}
-</div>
-</div>
-
-<div class="tab-pane" id="contact-person-details">
-<div class="row">
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="name">@lang('view_pages.name') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="name"
-name="name" value="{{ old('name') }}" required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.name')">
-<span
-class="text-danger">{{ $errors->first('name') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="surname">@lang('view_pages.surname') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="surname"
-name="surname" value="{{ old('surname') }}" required=""
-placeholder="@lang('view_pages.enter') @lang('view_pages.surname')">
-<span
-class="text-danger">{{ $errors->first('surname') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="mobile">@lang('view_pages.mobile')<span
-        class="text-danger">*</span></label>
-<input class="form-control" type="text" id="mobile"
-    name="mobile" value="{{ old('mobile') }}" required=""
-    placeholder="9521832670">
-<span
-    class="text-danger">{{ $errors->first('mobile') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="phone">@lang('view_pages.phone')</label>
-<input class="form-control" type="text" id="phone"
-name="phone" value="{{ old('phone') }}"
-placeholder="15218326703">
-<span
-class="text-danger">{{ $errors->first('phone') }}</span>
 </div>
 </div>
 </div>
 </div>
 
-<div class="tab-pane" id="bank-detail">
-<div class="row">
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="ifsc">@lang('view_pages.ifsc') <span
-class="text-danger">*</span></label>
-<input class="form-control" type="text" id="ifsc"
-name="ifsc" value="{{ old('ifsc') }}" required
-placeholder="@lang('view_pages.enter') @lang('view_pages.ifsc')">
-<span
-class="text-danger ifsc_err">{{ $errors->first('ifsc') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="bank_name">@lang('view_pages.bank_name')</label>
-<input class="form-control" type="text"
-id="bank_name" name="bank_name"
-value="{{ old('bank_name') }}"
-placeholder="@lang('view_pages.enter') @lang('view_pages.bank_name')">
-<span
-class="text-danger">{{ $errors->first('bank_name') }}</span>
-</div>
-</div>
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="account_no">@lang('view_pages.account_no')</label>
-<input class="form-control" type="text"  id="account_no"
-name="account_no" value="{{ old('account_no') }}"
-placeholder="@lang('view_pages.enter') @lang('view_pages.account_no')">
-<span class="text-danger">{{ $errors->first('account_no') }}</span>
-</div>
-</div>
-
-{{-- <div class="col-12 btn-group mt-3">
-<ul class="admin-add-btn">
-<li>
-<button type="submit" class="btn btn-primary mr-1 waves-effect waves-light">{{ trans('view_pages.create') }}</button>
-</li>
-</ul>
-</div> --}}
-</div>
-</div>
-
-<div class="tab-pane" id="documents">
-<div class="row">
-@foreach ($needed_document as $key => $item)
-<input type="hidden" name="needed_document[]" value="{{ $item->id }}">
-
-<div class="col-sm-12 pb-3">
-<div class="col-sm-6  float-left mb-md-3">
-<div class="form-group">
-<label for="name">@lang('view_pages.name') <span class="text-danger">*</span></label>
-<input class="form-control" type="text" name="doc_name" value="{{$item->name}}" placeholder="@lang('view_pages.document_name')" readonly>
-</div>
-</div>
-
-@if ($item->has_expiry_date)
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group">
-<label for="expiry_date">@lang('view_pages.expiry_date') <span class="text-danger">*</span></label>
-<div id="datepicker" class="date-pick input-group date date-custom" data-date-format="yyyy-mm-dd">
-    <input alt="" name="expiry_date[]" placeholder="yyyy-mm-dd" type="text" class="form-control" value="{{old('expiry_date.'.$key)}}" autocomplete="off">
-    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-</div>
-<span class="text-danger">{{ $errors->first('expiry_date.'.$key) }}</span>
-</div>
-</div>
-@endif
-
-<div class="col-sm-6 float-left mb-md-3">
-<div class="form-group profile-img">
-<label>{{ trans('view_pages.document')}} <span class="text-danger">*</span></label>
-<div class="col-12" style="display: inline;">
-<div class="col-md-12 float-left input-group p-0">
-    <span class="input-group-btn">
-        <span class="btn btn-default btn-file">
-            Browse… <input type="file" class="imgInp" name="document_{{$item->id}}" required>
-        </span>
-    </span>
-    <input type="text" class="form-control" readonly>
-</div>
-<div class="col-md-12 float-left p-0">
-    <img class='img-upload' width="100px" class="rounded avatar-lg" />
-</div>
-</div>
-</div>
-</div>
-{{-- <div style="border-bottom: 1px solid #eff2f7;"></div> --}}
-</div>
-@endforeach
-
-{{-- <div class="col-md-6 float-left">
-<div class="form-group profile-img">
-<label>{{ trans('view_pages.business_license')}} <span class="text-danger">*</span></label>
-<div class="col-12" style="display: inline;">
-<div class="col-md-12 float-left p-0">
-<img class='img-upload' width="100px" class="rounded avatar-lg" />
-</div>
-<div class="col-md-12 float-left input-group p-0">
-<span class="input-group-btn">
-<span class="btn btn-default btn-file">
-@lang('view_pages.browse')… <input type="file" class="imgInp" name="business_license" required>
-</span>
-</span>
-<input type="text" class="form-control" readonly>
-</div>
-</div>
-</div>
-</div> --}}
-
-<div class="col-12 btn-group mt-3">
-<ul class="admin-add-btn">
-
-<button type="submit" class="btn btn-primary mr-1 waves-effect waves-light">{{ trans('view_pages.create') }}</button>
-
-</ul>
-</div>
-</div>
-</div>
-
-</div>
-<ul
-class="pager wizard twitter-bs-wizard-pager-link">
-<li class="previous"><a href="#">@lang('view_pages.previous')</a></li>
-<li class="next"><a href="#">@lang('view_pages.next')</a></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
-
-<!-- twitter-bootstrap-wizard js -->
-<script src="{{ asset('taxi/assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}"></script>
-
-<script src="{{ asset('taxi/assets/libs/twitter-bootstrap-wizard/prettify.js') }}"></script>
-
-<!-- form wizard init -->
-<script src="{{ asset('taxi/assets/js/form-wizard.init.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
-<script>
-$(document).ready(function() {
-$(document).on('change', '.btn-file :file', function() {
-var input = $(this),
-label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-input.trigger('fileselect', [label]);
-});
-
-$('.btn-file :file').on('fileselect', function(event, label) {
-
-var input = $(this).parents('.input-group').find(':text'),
-log = label;
-
-if (input.length) {
-input.val(log);
-} else {
-if (log) alert(log);
-}
-
-});
-
-function readURL(input) {
-if (input.files && input.files[0]) {
-var reader = new FileReader();
-
-reader.onload = function(e) {
-$(input).closest('div').parent().find('.img-upload').attr('src', e.target.result);
-}
-
-reader.readAsDataURL(input.files[0]);
-}
-}
-
-$(".imgInp").change(function() {
-readURL(this);
-});
-});
-
-var err = false;
-
-$(".date-pick").datepicker({
-autoclose: true,
-todayHighlight: true,
-format: 'yyyy-mm-dd',
-startDate: '0'
-});
-
-$(document).on('blur keypress', '#iban', function(e) {
-var iban = $(this).val();
-
-if (e.type == 'keypress') {
-$('.iban_err').text('');
-} else {
-$.ajax({
-url: "{{ url('api/v1/iban-validation') }}",
-data: {
-iban: iban
-},
-method: 'post',
-success: function(response) {
-console.log(response);
-if (response.success == false) {
-$('.iban_err').text('Provide valid IBAN');
-$("#bank_name").val('');
-$("#bic").val('');
-err = true;
-return false;
-} else {
-var bic = response.data.bank_code.bic;
-var bank_name = response.data.bank_code.bank_name;
-err = false;
-$('.iban_err').text('');
-$("#bank_name").val(bank_name);
-$("#bic").val(bic);
-}
-}
-});
-}
-});
-
-$('form').on('submit', function(event) {
-event.preventDefault();
-if (err) {
-$('.iban_err').text('Provide valid IBAN');
-return false;
-} else {
-$('.iban_err').text('');
-this.submit();
-}
-});
-
-</script>
-
-<!-- address autoload -->
-
-<script src="https://maps.google.com/maps/api/js?key={{get_settings('google_map_key')}}&libraries=drawing,geometry,places"></script>
+<!-- Include jQuery first, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-beta1/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    $(document).ready(function () {
+        var currentStep = 1;
+        var totalSteps = $('.wizard-step').length;
 
-function initialize() {
-        var input = document.getElementById('address');
-        var autocomplete = new google.maps.places.Autocomplete(input);
-        google.maps.event.addListener(autocomplete, 'place_changed', function () {
-            var place = autocomplete.getPlace();
-            console.log(place);
-            document.getElementById('address_lat').value = place.geometry.location.lat();
-            document.getElementById('address_lng').value = place.geometry.location.lng();
+        function showStep(step) {
+            $('.wizard-step').removeClass('active');
+            $('#step' + step).addClass('active');
 
+            $('#prevBtn').toggle(step > 1);
+            $('#nextBtn').toggle(step < totalSteps);
+            $('#submitBtn').toggle(step === totalSteps);
+        }
 
+        $('#nextBtn').click(function () {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
         });
 
-    }
+        $('#prevBtn').click(function () {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
 
-    google.maps.event.addDomListener(window, 'load', initialize);
-
+        showStep(currentStep);
+    });
 </script>
+<script src="{{ asset('assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}">
+    </script>
 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/build/js/intlTelInput.js') }}"></script>
 
+<script>
+
+    let util = '{{ asset('assets/build/js/utils.js') }}'
+    var input = document.querySelector("#mobile");
+    var default_country = "{{get_settings('default_country_code_for_mobile_app')}}";
+    var iti = window.intlTelInput(input, {
+        initialCountry: default_country,
+        allowDropdown: true,
+        separateDialCode: true,
+        utilsScript: util,
+    });
+
+   $('.select2').select2({
+        placeholder : "Select ...",
+    });
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    if($('.iti__selected-dial-code').text() !== $('#dial_code').val()){
+        $('#dial_code').val($('.iti__selected-dial-code').text());
+    }
+    $('#nextBtn').click(function(){
+        if($('.wizard-step.active').attr('id') == 'step2'){
+            $('#dial_code').val($('.iti__selected-dial-code').text());
+        }
+    })
+    document.querySelectorAll('.btn-file input[type="file"]').forEach((input) => {
+        input.addEventListener('change', function(event) {
+            let input = event.target;
+            let key = input.id.split('_').pop(); // Get the key from the input ID
+            let label = input.value.replace(/\\/g, '/').replace(/.*\//, '');
+            let textInput = input.closest('.input-group').querySelector('input[type="text"]');
+            let imgPreview = document.getElementById('img_preview_' + key);
+
+            if (textInput) {
+                textInput.value = label;
+            }
+
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    if (imgPreview) {
+                        imgPreview.src = e.target.result;
+                    }
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    });
+});
+
+        //Date picker
+        $('.datepicker').datepicker({
+            autoclose: true,
+            format: 'yyyy-mm-dd',
+            // endDate: 'today'
+        });
+    </script>
 @endsection

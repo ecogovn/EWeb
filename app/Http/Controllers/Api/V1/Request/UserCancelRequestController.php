@@ -20,6 +20,8 @@ use App\Jobs\Notifications\SendPushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use App\Models\Request\RequestCycles; 
+
 /**
  * @group User-trips-apis
  *
@@ -139,8 +141,48 @@ class UserCancelRequestController extends BaseController
 
         // Delete Meta Driver From Firebase
             $this->database->getReference('request-meta/'.$request_detail->id)->remove();
+            $this->database->getReference('requests/'.$request_detail->id)->update(['cancelled_by_user'=>1,'is_cancelled'=>1,'updated_at'=>Database::SERVER_TIMESTAMP]);
 
-        
+        // Handle request cycles
+        $get_request_datas = RequestCycles::where('request_id', $request_detail->id)->first();
+        if ($get_request_datas) {
+            $request_data = json_decode(base64_decode($get_request_datas->request_data), true);
+            $request_datas = [
+                'request_id' => $request_detail->id,
+                'user_id' => $request_detail->user_id,
+                'orderby_status' => intval($get_request_datas->orderby_status) + 1
+            ];
+            
+            $driver_details = [
+                'name' => auth()->user()->name,
+                'mobile' => auth()->user()->mobile,
+                'image' => auth()->user()->profile_picture
+            ];
+            
+            $data = [
+                [
+                    'status' => 7,
+                    'process_type' => "user_cancelled",
+                    'created_at' => date("Y-m-d H:i:s", time()),
+                    'driver_details' => $driver_details
+                ]
+            ];
+
+            if ($driver) {
+                $data[0]['rating'] = number_format($driver->rating, 2);
+                $data[0]['name'] = $driver->name;
+                $data[0]['mobile'] = $driver->mobile;
+                $data[0]['image'] = $driver->profile_picture;
+            }
+
+            $request_data = $request_data ?? [];
+            $request_data1 = array_merge($request_data, $data);
+            $request_datas['request_data'] = base64_encode(json_encode($request_data1));
+
+            RequestCycles::where('id', $get_request_datas->id)->update($request_datas);
+        }
+
+    
         if ($driver) {
 
             // $this->database->getReference('request-meta/'.$request_detail.'/'.$driver->id)->remove();
@@ -187,7 +229,8 @@ class UserCancelRequestController extends BaseController
     {
 
        $user = auth()->user();
-        $request_detail = $user->requestDetail()->where('id', $request->request_id)->first();
+       
+       $request_detail = $user->requestDetail()->where('id', $request->request_id)->first();
 
         // dd($user);
         // Throw an exception if the user is not authorised for this request

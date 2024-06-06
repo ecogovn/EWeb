@@ -337,23 +337,11 @@ class ImageUploader implements ImageUploaderContract
         $this->validateFile();
 
         $config = $this->config('types.upload.images');
-
-        // $this->setDefaultResize(data_get($config, 'image.store_resolution'));
-
-        // $image = $this->encodeImage();
-        // $image = $this->file;
-
-        // $image_extension = $this->file->getClientOriginalExtension();
-
         $image = $this->file;
         $file_format = $image->getClientOriginalExtension();
         $filename = $this->hashGenerator->extension($file_format)->make();
         $filePath = file_path(data_get($config, 'path'),'');
         $path = Storage::putFileAs($filePath, $image, $filename);
-
-        // $filename = $this->hashGenerator->extension($this->format)->make();
-
-        // $filePath = file_path(data_get($config, 'path'), $filename);
 
         return $filename;
 

@@ -475,7 +475,12 @@
 @push('booking-scripts')
 
 
+<script>
 
+  var default_latitude = "{{get_settings('default_latitude')}}";
+  var default_longitude = "{{get_settings('default_longitude')}}";
+  var default_country = "{{get_settings('default_country_code_for_mobile_app')}}";
+</script>
     <script src="{{ asset('assets/build/js/intlTelInput.js') }}"></script>
     <script type="text/javascript">
         // $(document).on("click",".add_stop",function(){

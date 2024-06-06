@@ -65,12 +65,12 @@ ul {
 <table class="table caption-top tb">
     <thead>
       <tr>
-        <th scope="col">Request No</th>
-        <th scope="col">Date</th>
-        <th scope="col">Pickup Location</th>
-        <th scope="col">Drop Location</th>
-        <th scope="col">Trip Status</th>
-        <th scope="col">View</th>
+        <th scope="col">@lang('view_pages.request_no')</th>
+        <th scope="col">@lang('view_pages.date')</th>
+        <th scope="col">@lang('view_pages.pick_address')</th>
+        <th scope="col">@lang('view_pages.drop_address')</th>
+        <th scope="col">@lang('view_pages.trip_status')</th>
+        <th scope="col">@lang('view_pages.action')</th>
       </tr>
     </thead>
     <tbody id="append-rows">
@@ -161,7 +161,6 @@ ul {
   };
 
   firebase.initializeApp(firebaseConfig);
-  var url = "{{ url('/').'/dispatch/detailed-view'}} }}";
   var database = firebase.database();
   var requestRef = database.ref('requests');
   var requestMetaRef = database.ref('request-meta');
@@ -170,7 +169,7 @@ ul {
     shouldProcessChildAdded = true;
     shouldProcessSosChildAdded = true;
     }, 3000);
-    var baseUrl = '{{ env("APP_URL") }}';
+    var baseUrl = '{{ url("/") }}';
   requestRef.on("child_added", (snapshot) => {
     if(shouldProcessChildAdded){
       var type = $('.nav-item .active').closest('.nav-item').attr('data-val');
@@ -196,6 +195,7 @@ ul {
         }
       }
       if(snapshot.request_id){
+        URL = baseUrl+'/dispatch/detailed-view/'+snapshot.request_id;
         var html_data = ` <tr class="ongoing" id="row_${snapshot.request_id}">
         <td>${snapshot.request_number}</td>
         <td style="width:160px">${snapshot.date}</td>
@@ -203,7 +203,7 @@ ul {
         <td>${snapshot.drop_address}</td>
         <td class="trip_status_${snapshot.request_id}"><button class="btn btn-warning"> Searching </button></td>
         <td>
-            <a href="${baseUrl}/dispatch/detailed-view/${snapshot.request_id}" class="btn btn-primary" type="button">
+            <a href="${URL}" class="btn btn-primary" type="button">
           View</a></td>
           </tr>
         `;
@@ -261,9 +261,40 @@ ul {
         }
       }
     });
+    function sort_by_updated(snapshot){
+
+        let requests = [];
+        // Loop through each request
+        snapshot.forEach(function(requestSnapshot) {
+            let req_id = requestSnapshot.key;
+            let requestDetails = requestSnapshot.val();
+            // Get the latest updated_at timestamp from requestDetails
+            let latestUpdatedAt = requestDetails.updated_at;
+
+            // Push an object containing request ID and latest updated_at timestamp to the requests array
+            if (latestUpdatedAt) {
+                let requestObject = {};
+                requestObject[req_id] = latestUpdatedAt;
+                requests.push(requestObject);
+            }
+
+        });
+        var desc_requests = {};
+        // Sort requests by updated_at in descending order
+        requests.sort((a, b) => b.updated_at - a.updated_at);
+        requests.reverse();
+        requests.forEach(function(descending_request){
+          var req_id = Object.keys(descending_request)[0];
+          let requestSnapshot = snapshot.child(req_id);
+          if(requestSnapshot.exists()){
+            desc_requests[req_id] = requestSnapshot.val();
+          }
+        })
+        return desc_requests;
+    }
   function getrequestdata(tabValue){
     requestRef.once('value').then(function(snapshot){
-      var val = snapshot.val();
+      var val = sort_by_updated(snapshot);
       var requests = [[], [],[]];
       var assign_method = $('input[name="assign_method"]:checked').val(); // 0 if auto and 1 if manual
       // if(!assign_method){
@@ -354,6 +385,7 @@ ul {
         {
           status ='<button class="btn btn-primary"> On the Ride </button>';
         }
+        var URL = baseUrl+'/dispatch/detailed-view/'+request.request_id;
         html_data += `
         <tr class="ongoing" id="row_${request.request_id}">
           <td>${request.request_number}</td>
@@ -362,7 +394,7 @@ ul {
           <td>${drop}</td>
           <td id="trip_status_${request.request_id}">`+status+`</td>
           <td>
-              <a href="${baseUrl}/dispatch/detailed-view/${request.request_id}" class="btn btn-primary" type="button">View</a>
+              <a href="${URL}" class="btn btn-primary" type="button">View</a>
           </td>
         </tr>`;
       });

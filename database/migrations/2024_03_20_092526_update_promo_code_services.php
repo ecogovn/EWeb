@@ -13,17 +13,27 @@ class UpdatePromoCodeServices extends Migration
      */
     public function up()
     {
-        Schema::table('promo', function (Blueprint $table) {
-
-            $table->string('promo_code_users_available')->nullable()->after('to');
-            $table->text('user_ids')->after('total_uses')->nullable();
-            $table->text('service_ids')->after('total_uses')->nullable();
-            $table->unsignedInteger('user_id')->after('promo_code_users_available')->nullable();
-                $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
-        });
+        if (Schema::hasTable('promo')) {
+            if (!Schema::hasColumn('promo', 'promo_code_users_available')) {
+                Schema::table('promo', function (Blueprint $table) {
+                 $table->string('promo_code_users_available')->nullable()->after('to');
+                });
+            }
+            if (!Schema::hasColumn('promo', 'service_ids')) {
+                Schema::table('promo', function (Blueprint $table) {
+               $table->text('service_ids')->after('total_uses')->nullable();
+                });
+            }
+            if (!Schema::hasColumn('promo', 'user_id')) {
+                Schema::table('promo', function (Blueprint $table) {
+                    $table->unsignedInteger('user_id')->after('promo_code_users_available')->nullable();
+                    $table->foreign('user_id')
+                    ->references('id')
+                    ->on('users')
+                    ->onDelete('cascade');
+                });
+            }
+        }
     }
 
     /**

@@ -12,6 +12,7 @@ use Kreait\Firebase\Contract\Database;
 use App\Helpers\Rides\FetchDriversFromFirebaseHelpers;
 use App\Models\Admin\DriverAvailability;
 use Illuminate\Support\Facades\DB;
+use Config;
 
 /**
  * @group Vehicle Management
@@ -42,7 +43,7 @@ class CarMakeAndModelController extends BaseController
          $transport_type = request()->transport_type;
 
         // return $this->respondSuccess($this->car_make->active()->where('transport_type',$transport_type)->where('vehicle_make_for',request()->vehicle_type)->orderBy('name')->get());
-        if(request()->has('transport_type')){
+        if(request()->has('transport_type') && config('app.app_for') !== "taxi" && config('app.app_for') !== "delivery"){
 
         return $this->respondSuccess($this->car_make->active()->where('transport_type',$transport_type)->where('vehicle_make_for',request()->vehicle_type)->orderBy('name')->get());
 

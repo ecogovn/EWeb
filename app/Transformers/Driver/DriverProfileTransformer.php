@@ -53,12 +53,15 @@ class DriverProfileTransformer extends Transformer
     public function transform(Driver $user)
     {
         $authorization_code = auth()->user()->authorization_code;
+        $app_for = config('app.app_for');
+
         $params = [
             'id' => $user->id,
             'user_id'=>$user->user_id,
             'owner_id' => $user->owner_id,
-            'transport_type' => $user->transport_type,
+            'transport_type' => $user->transport_type ?? $app_for,
             'name' => $user->name,
+            'gender' => $user->gender,
             'email' => $user->email,
             'mobile' => $user->mobile,
             'profile_picture' => $user->profile_picture,
@@ -116,7 +119,8 @@ class DriverProfileTransformer extends Transformer
 
         }
 
-        if($user->driverVehicleTypeDetail()->exists()){
+        if($user->driverVehicleTypeDetail()->exists())
+        {
             foreach ($user->driverVehicleTypeDetail as $key => $type) {
 
                 $params['vehicle_type_icon_for'] = $type->vehicleType->icon_types_for;
@@ -310,12 +314,35 @@ class DriverProfileTransformer extends Transformer
             // $params['maximum_time_for_find_drivers_for_bidding_ride'] = (get_settings(Settings::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE) * 60);
 
              $params['maximum_time_for_find_drivers_for_bitting_ride'] = (get_settings(Settings::MAXIMUM_TIME_FOR_FIND_DRIVERS_FOR_BIDDING_RIDE));
+             $params['bidding_amount_increase_or_decrease'] = (get_settings(Settings::BIDDING_AMOUNT_INCREASE_OR_DECREASE));
 
             $params['low_balance'] = $low_balance;
+        $app_for = config('app.app_for');
 
-            $params['enable_shipment_load_feature'] = get_settings(Settings::ENABLE_SHIPMENT_LOAD_FEATURE);
-            $params['enable_shipment_unload_feature'] = get_settings(Settings::ENABLE_SHIPMENT_UNLOAD_FEATURE);
-            $params['enable_digital_signature'] = get_settings(Settings::ENABLE_DIGITAL_SIGNATURE);
+        if($app_for=='delivery')
+        {
+
+                $params['enable_shipment_load_feature'] = get_settings(Settings::ENABLE_SHIPMENT_LOAD_FEATURE);
+                    $params['enable_shipment_unload_feature'] = get_settings(Settings::ENABLE_SHIPMENT_UNLOAD_FEATURE);
+                    $params['enable_digital_signature'] = get_settings(Settings::ENABLE_DIGITAL_SIGNATURE);
+                    
+        }elseif($app_for=='super' || $app_for=='bidding')
+        {
+            // Check if the 'transport_type' field exists in the request
+            if (property_exists($user, 'transport_type')) {
+                $transportType = $user->transport_type;
+
+                // If 'transport_type' is 'delivery', add additional settings to the parameters
+                if (($transportType === "delivery") || ($transportType === "both")) {
+                    $params['enable_shipment_load_feature'] = get_settings(Settings::ENABLE_SHIPMENT_LOAD_FEATURE);
+                    $params['enable_shipment_unload_feature'] = get_settings(Settings::ENABLE_SHIPMENT_UNLOAD_FEATURE);
+                    $params['enable_digital_signature'] = get_settings(Settings::ENABLE_DIGITAL_SIGNATURE);
+                }
+            }
+
+        }
+
+
             $params['chat_id'] = null;
             $get_chat_data = Chat::where('user_id',$user->user_id)->first();
             if($get_chat_data)
@@ -331,6 +358,14 @@ class DriverProfileTransformer extends Transformer
             $params['is_deleted_at'] = "Your Account Delete operation is Processing";
         }
         $params['map_type'] = (get_settings(Settings::MAP_TYPE));
+
+        $app_for = config('app.app_for');
+
+        if($app_for=='taxi' || $app_for=='delivery')
+        {
+           $params['enable_modules_for_applications'] =  $app_for;
+        }
+
 
         return $params;
     }

@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
         $this->call(GoodsTypeSeeder::class);
         $this->call(MailTemplateSeeder::class);
         $this->call(ThirdPartySettingSeeder::class);
+        $this->call(OnboardingSeeder::class);
+
+
 
 
     }

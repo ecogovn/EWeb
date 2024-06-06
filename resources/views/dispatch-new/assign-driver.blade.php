@@ -218,7 +218,7 @@ left:100px;
             <!-- BEGIN: Content -->
 <div class="cont">           
 <div class="box p-5" style="box-shadow: 0 30px 40px #0000000b;">
-<div class="float-left"><a href="{{ url('/dispatch/dashboard') }}" class="btn btn-danger w-32" style="font-size:16px;"> Back</a></div>
+<div class="float-left"><a href="javascript:history.back()" class="btn btn-danger w-32" style="font-size:16px;"> Back</a></div>
 <div class="row p-5">
     <div class="col-12 col-lg-2 text-center" style="margin:auto;">
     <h1 style="font-size:22px;padding:20px;border:4px solid #fca503;color:#fca503;">Ride Details</h1>

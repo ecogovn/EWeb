@@ -13,6 +13,7 @@ class CreateRequestStopsTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('request_stops')) {
         Schema::create('request_stops', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('request_id');
@@ -29,6 +30,7 @@ class CreateRequestStopsTable extends Migration
                     ->on('requests')
                     ->onDelete('cascade');
         });
+      }
     }
 
     /**

@@ -11,6 +11,7 @@ use Nicolaslopezj\Searchable\SearchableTrait;
 use App\Models\Payment\OwnerWallet;
 use App\Models\Payment\OwnerWalletHistory;
 use Carbon\Carbon;
+use config;
 
 class Owner extends Model
 {
@@ -19,9 +20,21 @@ class Owner extends Model
      protected $table = 'owners';
 
     protected $fillable = [
-        'user_id','service_location_id','company_name','owner_name','name','surname','mobile','phone','email','password','address','postal_code','city','expiry_date','no_of_vehicles','tax_number','bank_name','ifsc','account_no','active','approve','transport_type'
+        'user_id','service_location_id','company_name','owner_name','name','surname','mobile','phone','email','password','address','postal_code','city','expiry_date','no_of_vehicles','tax_number','bank_name','ifsc','account_no','active','approve'
     ];
     
+    /*to validating fillable value transport_type*/
+    public function setFillable()
+    {
+    
+    $app_for = config('app.app_for');
+
+    if($app_for !== "taxi" && $app_for !== "delivery") {
+            // Add "transport_type" to fillable if app_for is not "taxi" and delivery is true
+            $this->fillable[] = 'transport_type';
+        }
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

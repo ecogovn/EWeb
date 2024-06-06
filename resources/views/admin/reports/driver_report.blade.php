@@ -5,6 +5,7 @@
 @section('content')
     <!-- bootstrap datepicker -->
     <link rel="stylesheet" href="{!! asset('assets/vendor_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') !!}">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
         .form-horizontal {
@@ -28,6 +29,28 @@
                         <input type="hidden" name="model" value="Driver">
 
                         <div class="row">
+                             <div class="col-md-12" >
+                                <div class="row">
+                                <div class="form-group col-lg-6">
+                                    <label for="vehicle_type">@lang('view_pages.vehicle_type')</label>
+                                    <select name="vehicle_type" id="vehicle_type" class="form-control select2" multiple="multiple" required>
+                                        @if($app_for == "taxi" || $app_for == "delivery")
+                                        @foreach($vehicletype as $key=> $type)
+                                        <option value="{{$type->id}}">{{$type->name}}</option>
+                                        @endforeach
+                                        @else
+                                        <option value="" selected disabled>@lang('view_pages.select_vehicle_type')</option>
+                                        @endif
+                                    </select>
+                                    <span class="vehicleErr text-danger">{{ $errors->first('vehicle_type') }}</span>
+                                </div>
+                                <div class="form-group col-lg-6" >
+                                    <input class="form-control" type="checkbox" id="all_vehicle_type" name="all_vehicle_type" value="all_vehicle_type" checked>
+                                    <label for="all_vehicle_type" style="    margin: 30px;">@lang('view_pages.all_vehicle_types')</label>
+                                </div>
+                                </div>
+                            </div>
+                            <!-- 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="status">@lang('view_pages.status')</label>
@@ -39,8 +62,8 @@
                                     <span class="text-danger">{{ $errors->first('active') }}</span>
                                 </div>
                             </div>
-
-                            <div class="col-md-4">
+ -->
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="status">@lang('view_pages.approve_status')</label>
                                     <select name="approve" id="approve" class="form-control" required>
@@ -52,7 +75,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="date_option">@lang('view_pages.date_option')</label>
                                     <select name="date_option" id="date_option" class="form-control">
@@ -65,7 +88,6 @@
                                     <span class="text-danger">{{ $errors->first('date_option') }}</span>
                                 </div>
                             </div>
-
                             <div class="col-md-6 dateDiv">
                                 <div class="form-group">
                                     <label for="from">@lang('view_pages.from') <span class="text-danger">*</span></label>
@@ -85,6 +107,9 @@
                                     <span class="text-danger">{{ $errors->first('to') }}</span>
                                 </div>
                             </div>
+                            @php 
+                            @endphp
+                            @if($app_for == "super" || $app_for == "bidding")                        
                             <div class="col-md-6">
                                 <div class="form-group">
                                             <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
@@ -97,15 +122,9 @@
                                             <span class="text-danger">{{ $errors->first('transport_type') }}</span>
                                         </div>
                                     </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="vehicle_type">@lang('view_pages.vehicle_type')</label>
-                                    <select name="vehicle_type" id="vehicle_type" class="form-control" required>
-                                        <option value="" selected disabled>@lang('view_pages.select_vehicle_type')</option>
-                                    </select>
-                                    <span class="text-danger">{{ $errors->first('vehicle_type') }}</span>
-                                </div>
-                            </div>
+                            @endif
+
+                           
 
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -147,17 +166,45 @@
             endDate: 'today'
         });
 
+        $(document).on('change', '#vehicle_type', function(){
+            var val = $(this).val();
+            if(val && val.length > 0){
+                if($('#all_vehicle_type').is(':checked')){
+                    $('#all_vehicle_type').click();
+                }
+            }else{
+                if(!$('#all_vehicle_type').is(':checked')){
+                    $('#all_vehicle_type').click();
+                }
+            }
+        })
         $(document).on('change', '#date_option', function() {
             dateOption();
         });
 
+       $('.select2').select2({
+            placeholder : "Select ...",
+        });
         $(document).on('click', '.submit', function(e) {
 
             var validate = validateForm();
 
             if (validate) {
-                let filterColumn = ['active', 'date_option', 'approve', 'vehicle_type'];
                 let query = '?';
+                var vehicle_type = $('#vehicle_type');
+
+                if(vehicle_type.val().length == 0 && !$('#all_vehicle_type').is(':checked')){
+                    $('.vehicleErr').html('PLease Select Vehicle Type');
+                    return false;
+                }else{
+                    $('.vehicleErr').html('');
+                    var types = '';
+                    if(!$('#all_vehicle_type').is(':checked')){
+                        types = vehicle_type.val();
+                    query += 'vehicle_type='+ types+'&';
+                    }
+                }
+                let filterColumn = ['date_option', 'approve'];
 
                 var from = $('#from').val();
                 var to = $('#to').val();
@@ -170,7 +217,6 @@
                             val = from + '<>' + to;
                         }
                     }
-
                     if (val != null && val != '') {
                         query += value + '=' + val + '&';
                     }
@@ -246,6 +292,7 @@
 <!-- jQuery 3 -->
     <script src="{{asset('assets/vendor_components/jquery/dist/jquery.js')}}"></script>
 <script>
+@if($app_for == "super" || $app_for == "bidding")
     let oldTransportType = "{{ old('transport_type') }}";
 
     function getType(value,model=''){
@@ -274,6 +321,7 @@
         getType($(this).val());
     });
 
+@endif
 </script>
 
 @endsection

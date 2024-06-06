@@ -84,8 +84,8 @@ class RequestAcceptRejectController extends BaseController
         $get_request_datas = RequestCycles::where('request_id', $request->input('request_id'))->first();
         if($get_request_datas)
         { 
-            Log::info('-------------accept_reject----------------');
-            Log::info(auth()->user());
+            // Log::info('-------------accept_reject----------------');
+            // Log::info(auth()->user());
             $user_data = User::find(auth()->user()->driver->user_id);
             $request_data = json_decode(base64_decode($get_request_datas->request_data), true);
             $request_datas['request_id'] = $request_detail->id;
@@ -168,9 +168,9 @@ class RequestAcceptRejectController extends BaseController
         // @TODO send sms,email & push notification with request detail
         } else {
 
-            Log::info('request-number');
-            Log::info($request_detail->request_number);
-            Log::info('----------');
+            // Log::info('request-number');
+            // Log::info($request_detail->request_number);
+            // Log::info('----------');
             $request_result =  fractal($request_detail, new TripRequestTransformer)->parseIncludes('userDetail');
             // Save Driver Reject Requests
             DriverRejectedRequest::create(['request_id'=>$request_detail->id,
@@ -187,6 +187,7 @@ class RequestAcceptRejectController extends BaseController
 
                 // Cancell the request as automatic cancell state
                 $request_detail->update(['is_cancelled'=>true,'cancel_method'=>0,'cancelled_at'=>date('Y-m-d H:i:s')]);
+                $this->database->getReference('bid-meta/'.$request_detail->id)->remove();
                 $request_result =  fractal($request_detail, new TripRequestTransformer);
                 $push_request_detail = $request_result->toJson();
                 // Send push notification as no-driver-found to the user

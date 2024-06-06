@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use App\Models\Admin\Owner;
 use App\Exports\OwnerExport;
 use App\Base\Filters\Admin\OwnerFilter;
+use Config;
 
 class ReportController extends Controller
 {
@@ -50,8 +51,9 @@ class ReportController extends Controller
         $sub_menu = 'driver_report';
         $formats = $this->format;
         $vehicletype = VehicleType::active()->get();
+        $app_for = config('app.app_for');
 
-        return view('admin.reports.driver_report', compact('page', 'main_menu', 'sub_menu', 'formats', 'vehicletype'));
+        return view('admin.reports.driver_report', compact('page', 'main_menu', 'sub_menu', 'app_for', 'formats', 'vehicletype'));
     }
     public function ownerReport()
     {

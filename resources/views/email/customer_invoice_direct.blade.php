@@ -1906,7 +1906,7 @@ font-size: 14px;
 font-weight: normal;
 line-height: 18px;
 ">
-Tax {{get_settings('service_tax')}} %
+Tax {{$data->zoneType->service_tax}} %
 </td>
 </tr>
 </tbody>

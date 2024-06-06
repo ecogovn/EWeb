@@ -122,7 +122,7 @@ input[type=number] {
 </script>
 <div class="g-col-12 g-col-lg-4">
     <div class="pe-1 d-flex align-items-center">
-        <div class="box p-2 h-16 w-full">
+        <div class="box p-2 h-16 w-4/5">
             <ul class="pos__tabs nav nav-pills rounded-2" role="tablist">
                 <li id="all-tab" onclick="fetchDataFromFirebase('all',this),toggleActiveTab('all-tab')" class="nav-item flex-1 actv-tab" data-val="all" role="presentation">
                     <button class="nav-link w-full pt-2 pb-10 active">All</button>
@@ -138,8 +138,8 @@ input[type=number] {
                 </li>
             </ul>
         </div>
-        <!-- <div class="d-flex align-items-center ms-auto " style="font-size:22px;"><button class="w-full pt-2 pb-2.5" onclick="all_drivers()">All Drivers</button></div> -->
-        <a href="" data-toggle="modal" data-target="#drivermodal" class="btn ms-auto d-flex align-items-center text-theme-1 p-2" style="background:white;border-radius:10px;box-shadow:  0px 0px 8px 1px rgba(0,0,0,0.3);"><i data-feather="sliders" style="rotate:90deg;"></i></a>
+        <div class="d-flex align-items-center ms-auto " style="font-size:22px;"><button class="w-full pt-2 pr-5 pb-2.5" onclick="all_drivers()">All Drivers</button></div>
+        <!-- <a href="" data-toggle="modal" data-target="#drivermodal" class="btn ms-auto d-flex align-items-center text-theme-1 p-2" style="background:white;border-radius:10px;box-shadow:  0px 0px 8px 1px rgba(0,0,0,0.3);"><i data-feather="sliders" style="rotate:90deg;"></i></a> -->
     </div>
     <div class="tab-content mt-5">
         <!-- all drivers tab -->
@@ -264,10 +264,12 @@ input[type=number] {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{{ asset('assets/js/dispatcher/script.js') }}"></script>
 <script>
+  var default_latitude = {{get_settings('default_latitude')}};
+  var default_longitude = {{get_settings('default_longitude')}};
    function initMap() {
    map = new google.maps.Map(document.getElementById("map"), {
       zoom: 5,
-      center: { lat: 27.7172, lng: 85.3240 },
+      center: { lat: default_latitude, lng: default_longitude },
       mapTypeId: 'roadmap'
 
   });

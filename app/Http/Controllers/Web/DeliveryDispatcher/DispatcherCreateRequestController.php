@@ -66,6 +66,7 @@ class DispatcherCreateRequestController extends BaseController
         * assing driver to the trip depends the assignment method
         * send emails and sms & push notifications to the user& drivers as well.
         */
+        Log::info('dispatcher___create___request');
         
         // Validate payment option is available.
         if ($request->has('is_later') && $request->is_later) {
@@ -92,7 +93,7 @@ class DispatcherCreateRequestController extends BaseController
         // Fetch user detail
         $user_detail = auth()->user();
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;
@@ -113,7 +114,7 @@ class DispatcherCreateRequestController extends BaseController
             'service_location_id'=>$service_location->id,
             'goods_type_id'=>(integer)$request->goods_type_id,
             'timezone'=>$service_location->timezone,
-            'transport_type'=>'delivery',
+            'transport_type'=> $request->transport_type ?? 'delivery',
             'goods_type_quantity'=>'loose',
 
         ];
@@ -121,6 +122,8 @@ class DispatcherCreateRequestController extends BaseController
         // store request details to db
         // DB::beginTransaction();
         // try {
+        Log::info('createdispatcherrequest');
+        Log::info($request_params);
         $request_detail = $this->request->create($request_params);
         // request place detail params
         $request_place_params = [
@@ -352,7 +355,7 @@ class DispatcherCreateRequestController extends BaseController
         // Fetch user detail
         $user_detail = auth()->user();
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;
@@ -383,7 +386,7 @@ class DispatcherCreateRequestController extends BaseController
             'goods_type_quantity'=>'loose',
             'service_location_id'=>$service_location->id,
             'timezone'=>$service_location->timezone,
-            'transport_type'=>'delivery',
+            'transport_type'=> $request->transport_type ?? 'delivery',
             'on_search'=>false,
         ];
 

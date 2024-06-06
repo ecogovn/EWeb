@@ -28,8 +28,12 @@ class PackageTypeController extends BaseController
 
         $main_menu = 'master';
         $sub_menu = 'package_type';
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.package_type.index', compact('page', 'main_menu', 'sub_menu'));
+        }else{
+            return view('admin.master.taxi.package_type.index', compact('page', 'main_menu', 'sub_menu'));
+        }
     }
 
     public function fetch(QueryFilterContract $queryFilter)
@@ -37,7 +41,12 @@ class PackageTypeController extends BaseController
         $query = $this->package->query();//->active()
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
 
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
+
         return view('admin.master.package_type._package', compact('results'));
+      }else{
+        return view('admin.master.taxi.package_type._package', compact('results'));
+      }
     }
 
     /**
@@ -51,8 +60,13 @@ class PackageTypeController extends BaseController
 
         $main_menu = 'master';
         $sub_menu = 'package_type';
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.package_type.create', compact('page', 'main_menu', 'sub_menu'));
+       }else{
+        return view('admin.master.taxi.package_type.create', compact('page', 'main_menu', 'sub_menu'));
+
+        }
     }
 
     /**
@@ -71,10 +85,10 @@ class PackageTypeController extends BaseController
 
         Validator::make($request->all(), [
             'name' => 'required',
-            'transport_type' => 'required'
+            'transport_type' => 'sometimes|required'
         ])->validate();
 
-        $created_params = $request->only(['name','transport_type']);
+        $created_params = $request->only(['name','transport_type','description','short_description']);
         $created_params['active'] = 1;
 
         // $created_params['company_key'] = auth()->user()->company_key;
@@ -94,8 +108,13 @@ class PackageTypeController extends BaseController
         $sub_menu = 'package_type';
         $item = $package;
         // dd($item);
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.master.package_type.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+      }else{
+        return view('admin.master.taxi.package_type.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+
+      }
     }
 
     public function update(Request $request, PackageType $package)
@@ -108,7 +127,7 @@ class PackageTypeController extends BaseController
 
         Validator::make($request->all(), [
             'name' => 'required',
-            'transport_type' => 'required'
+            'transport_type' => 'sometimes|required'
         ])->validate();
 
         $updated_params = $request->all();

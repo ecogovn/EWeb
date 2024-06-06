@@ -193,4 +193,20 @@ class Settings
     const BIDDING_LOW_PERCENTAGE='bidding_low_percentage';
     const BIDDING_HIGH_PERCENTAGE ='bidding_high_percentage';
 
+    const ENABLE_DRIVER_PREFERENCE_FOR_USER='enable_driver_preference_for_user';
+    const ENABLE_PET_PREFERENCE_FOR_USER='enable_pet_preference_for_user';
+    const ENABLE_LUGGAGE_PREFERENCE_FOR_USER='enable_luggage_preference_for_user';
+ 
+    // subscription params
+
+    const DRIVER_COMMISSION_TYPE='driver_commision_type';
+    const DRIVER_MONTHLY_SUBSCRIPTION_AMOUNT='driver_monthly_subscription_amount';
+    const DRIVER_YEARLY_SUBSCRIPTION_AMOUNT='driver_yearly_subscription_amount';
+    const DRIVER_WEEKLY_SUBSCRIPTION_AMOUNT='driver_weekly_subscription_amount';
+    const DRIVER_DAILY_SUBSCRIPTION_AMOUNT='driver_daily_subscription_amount';
+
+    const SUBSCRIPTION_GST='subscription_gst';
+
+    const BIDDING_AMOUNT_INCREASE_OR_DECREASE='bidding_amount_increase_or_decrease';
+
 }

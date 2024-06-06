@@ -24,10 +24,13 @@
 <span style="float: right;">
 </span>
 </th>
+@if($app_for == "super" || $app_for == "bidding");
+
 <th> @lang('view_pages.transport_type')</th>
 <span style="float: right;">
 </span>
 </th>
+@endif
 <th>@lang('view_pages.document_view')</th>
 <span style="float: right;">
 </span>
@@ -77,7 +80,10 @@
     @else
     <td>{{$result->driver->mobile}}</td>
 @endif
+@if($app_for == "super" || $app_for == "bidding");
+
     <td>{{$result->driver->transport_type}}</td>
+@endif
 <td>
     @if(auth()->user()->can('driver-document'))         
     <a href="{{ url('drivers/document/view',$result->driver->id) }}" class="btn btn-social-icon btn-bitbucket">

@@ -72,15 +72,6 @@
                                                     class="with-gap radio-col-grey">
                                                 <label for="inactive">@lang('view_pages.Inactive')</label>
                                             </div>
-                                            <h4>@lang('view_pages.approve_status')</h4>
-                                            <div class="demo-radio-button">
-                                                <input name="approve" type="radio" id="approved" data-val="1"
-                                                    class="with-gap radio-col-green">
-                                                <label for="approved">@lang('view_pages.approved')</label>
-                                                <input name="approve" type="radio" id="disapproved" data-val="0"
-                                                    class="with-gap radio-col-grey">
-                                                <label for="disapproved">@lang('view_pages.disapproved')</label>
-                                            </div>
                                             <h4>@lang('view_pages.online_status')</h4>
                                             <div class="demo-radio-button">
                                                 <input name="available" type="radio" id="online" data-val="1"
@@ -156,7 +147,7 @@
                 });
 
                 $('.filter,.resetfilter').on('click', function() {
-                    let filterColumn = ['active', 'approve', 'available','area'];
+                    let filterColumn = ['active', 'available','area'];
 
                     let className = $(this);
                     query = '';

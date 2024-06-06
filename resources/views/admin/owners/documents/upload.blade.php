@@ -88,21 +88,12 @@
 <script src="{{asset('assets/vendor_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')}}"></script>
 
 <script>
-    // Date picker
+
+    //Date picker
     $('.datepicker').datepicker({
-        autoclose: true,
-        format: 'yyyy-mm-dd',
-        startDate: 'today'
+      autoclose: true,
+      format: 'yyyy-mm-dd',
+      startDate: 'today'
     });
-
-    // Example of setting date using JavaScript
-    var date = new Date();
-    var year = date.getFullYear(); // Get the full year (e.g., 2024)
-    var month = date.getMonth() + 1; // Get the month (0-11)
-    var day = date.getDate(); // Get the day of the month (1-31)
-    var formattedDate = year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
-
-    // Set the date to the input field with class 'datepicker'
-    $('.datepicker').datepicker('setDate', formattedDate);
 </script>
 @endsection

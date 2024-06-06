@@ -15,18 +15,22 @@
                     <span style="float: right;">
                     </span>
                 </th>
+                @if($app_for == "bidding" || $app_for == "super")
                 <th> @lang('view_pages.tansport_type')
                     <span style="float: right;">
                     </span>
                 </th>
+                @endif
                  <th> @lang('view_pages.icon_types_for')
                     <span style="float: right;">
                     </span>
                 </th>
+                @if($app_for == "bidding")
                 <th> @lang('view_pages.trip_dispatch_type')
                     <span style="float: right;">
                     </span>
-                </th>                
+                </th>
+                @endif
                 <th> @lang('view_pages.icon')
                     <span style="float: right;">
                     </span>
@@ -64,6 +68,7 @@
                     <tr>
                         <td>{{ $i++ }} </td>
                         <td> {{$result->name}}</td>
+                @if($app_for == "bidding" || $app_for == "super")
 
                         <td>  
                             @if($result->is_taxi == 'taxi' )
@@ -74,7 +79,7 @@
                                 {{ "Both" }}
                             @endif
                         </td>
-
+                @endif
                         <td> @if($result->icon_types_for == 'taxi' )
                                 {{ "Taxi" }}
                             @elseif($result->icon_types_for == 'truck' )
@@ -82,8 +87,9 @@
                                 @else
                                 {{ "Motor Bike" }}
                             @endif</td>
+                        @if($app_for == "bidding")
                         <td> {{$result->trip_dispatch_type}}</td>
-
+                        @endif
 
                         <td><img class="img-circle" src="{{asset($result->icon)}}" alt=""></td>
                         @if($result->active)

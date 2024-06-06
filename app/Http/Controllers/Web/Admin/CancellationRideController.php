@@ -35,7 +35,19 @@ class CancellationRideController extends Controller
 
     public function getAllRides(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
+
         $query = RequestRequest::where('transport_type' , 'taxi')->whereIsCancelled(true);
+      
+        if($app_for=='taxi')
+        {
+        
+        $query = RequestRequest::->whereIsCancelled(true);
+
+        }
+
+
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
         return view('admin.cancellation-rides._rides', compact('results'));
@@ -44,8 +56,18 @@ class CancellationRideController extends Controller
 
     public function getAllDeliveryRides(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
 
         $query = RequestRequest::where('transport_type' , 'delivery')->whereIsCancelled(true);
+       
+        if($app_for=='delivery')
+        {
+        
+        $query = RequestRequest::->whereIsCancelled(true);
+
+        }
+
+
         $results = $queryFilter->builder($query)->customFilter(new RequestFilter)->defaultSort('-created_at')->paginate();
 
 

@@ -99,7 +99,7 @@ class DispatcherCreateRequestController extends BaseController
         $country= $user_detail->admin->serviceLocationDetail->country;
 
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;
@@ -419,7 +419,7 @@ class DispatcherCreateRequestController extends BaseController
         $country= $user_detail->admin->serviceLocationDetail->country;
 
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;

@@ -63,15 +63,7 @@
         <script>
             var search_keyword = '';
             var query = '';
-$.toast({
-    heading: '',
-    text: res,
-    position: 'top-right',
-    loaderBg: '#ff6849',
-    icon: 'success',
-    hideAfter: 5000,
-    stack: 1
-});
+
             $(function() {
                 $('body').on('click', '.pagination a', function(e) {
                     e.preventDefault();

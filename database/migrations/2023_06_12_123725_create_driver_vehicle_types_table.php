@@ -13,6 +13,8 @@ class CreateDriverVehicleTypesTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('driver_vehicle_types')) {
+
         Schema::create('driver_vehicle_types', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('driver_id');
@@ -29,6 +31,7 @@ class CreateDriverVehicleTypesTable extends Migration
                     ->on('drivers')
                     ->onDelete('cascade');
         });
+     }
     }
 
     /**

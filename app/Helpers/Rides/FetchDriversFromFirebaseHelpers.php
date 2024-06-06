@@ -136,11 +136,16 @@ trait FetchDriversFromFirebaseHelpers
                 if($drop_lat==null){
                     goto for_each_end;
                 }
-                $has_enabled_my_route_drivers=Driver::where('id',$key)->where('active', 1)->where('approve', 1)->where('available', 1)->where(function($query){
-                    $query->where('transport_type','taxi')->orWhere('transport_type','both');
+                $app_for = config('app.app_for');
+                if($app_for=='taxi' || $app_for=='delivery')
+                {
+               $has_enabled_my_route_drivers=Driver::where('id',$key)->where('active', 1)->where('approve', 1)->where('available', 1)->where('enable_my_route_booking',1)->first();
+                }else{
+                $has_enabled_my_route_drivers=Driver::where('id',$key)->where('active', 1)->where('approve', 1)->where('available', 1)->where(function($query)use($request_detail){
+                    $query->where('transport_type', $request_detail->transport_type);
                 })->where('enable_my_route_booking',1)->whereNotNull('my_route_address')->whereNotNull('my_route_lat')->first();
 
-
+               }
                 $route_coordinates=null;
 
                 if($has_enabled_my_route_drivers){

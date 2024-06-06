@@ -130,25 +130,37 @@
 <script>
 
 $('.logout').click(function(e){
-    button=$(this);
     e.preventDefault();
+    var button = $(this);
 
-        swal({
-            title: "Are you sure to logout ?",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Logout",
-            cancelButtonText: "Stay in",
-            closeOnConfirm: false,
-            closeOnCancel: true
-        }, function(isConfirm){
-            if (isConfirm) {
-                button.unbind();
-                button[0].click();
-            }
-        });
-    });+
+    swal({
+        title: "Are you sure you want to logout?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function(isConfirm){
+        if (isConfirm) {
+            // Perform logout API call
+            $.ajax({
+                url: "{{ url('api/spa/logout') }}",
+                method: 'POST',
+                success: function(response) {
+                    // On successful logout, redirect to login page
+                    window.location.href = "{{ url('login') }}";
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if needed
+                    console.log(error);
+                }
+            });
+        }
+    });
+});+
+
 
     // $(document).on('click','.sweet-delete',function(e){
 $('.sweet-delete').click(function(e){
@@ -332,6 +344,7 @@ $(document).on('click','.chooseLanguage',function(){
         firebase.analytics();
 
         var tripRef = firebase.database().ref('requests');
+        var database = firebase.database();
 
         tripRef.on('value', async function(snapshot) {
             var tripData = snapshot.val();

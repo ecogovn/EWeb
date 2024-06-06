@@ -13,6 +13,7 @@ class CreateMailOtpVerificationsTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('mail_otp_verifications')) {
         Schema::create('mail_otp_verifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('email', 50)->unique();
@@ -20,6 +21,7 @@ class CreateMailOtpVerificationsTable extends Migration
             $table->boolean('verified')->default(false);
             $table->timestamps();
         });
+      }
     }
 
     /**

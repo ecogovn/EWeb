@@ -78,9 +78,6 @@ class DispatcherCreateRequestController extends BaseController
             'trip_start_time'=>'sometimes|required',
             'promocode_id'=>'sometimes|required|exists:promo,id'
         ];
-        Log::info('-------------request--------------');
-        Log::info($request->all());
-        Log::info('-------------request--------------');
         // Create a new validator instance
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -147,7 +144,7 @@ class DispatcherCreateRequestController extends BaseController
         // Fetch user detail
         $user_detail = auth()->user();
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;
@@ -155,7 +152,8 @@ class DispatcherCreateRequestController extends BaseController
             $request_number = 000000;
         }
         // Generate request number
-        $request_number = 'REQ_'.time();
+        $request_number = 'REQ_'.sprintf("%06d", $request_number+1);
+        // $request_number = 'REQ_'.time();
 
         $request_params = [
             'request_number'=>$request_number,
@@ -200,7 +198,9 @@ class DispatcherCreateRequestController extends BaseController
         // try {
             // Log::info("test1");
         $request_detail = $this->request->create($request_params);
-        // Log::info("test2");
+        Log::info("------------requestDetailss----------------");
+        Log::info($request_detail);
+        Log::info($request_params);
         // request place detail params
         $request_place_params = [
             'pick_lat'=>$request->pick_lat,
@@ -367,11 +367,12 @@ class DispatcherCreateRequestController extends BaseController
         $currency_code = $service_location->currency_code;
         $currency_symbol = $service_location->currency_symbol;
         $trip_start_time = $request->trip_start_time;
-        $carbonDateTime = Carbon::createFromFormat('d M, Y H:i:s', $trip_start_time, $service_location->timezone);  
+        $secondcarbonDateTime = Carbon::parse($request->trip_start_time, $service_location->timezone)->setTimezone('UTC')->toDateTimeString();
+        // $carbonDateTime = Carbon::createFromFormat('d M, Y H:i:s', $trip_start_time, $service_location->timezone);  
         $now = Carbon::now($service_location->timezone)->addHour(); 
-        if (!$carbonDateTime->greaterThanOrEqualTo($now)) { 
-        return response()->json(['status'=>false,"type"=>"date_format","message"=>"The provided time is less than one hour"]);
-        } 
+        // if (!$carbonDateTime->greaterThanOrEqualTo($now)) { 
+        // return response()->json(['status'=>false,"type"=>"date_format","message"=>"The provided time is less than one hour"]);
+        // } 
         // fetch unit from zone
         $unit = $zone_type_detail->zone->unit;
         $eta_result = fractal($zone_type_detail, new EtaTransformer);
@@ -400,7 +401,7 @@ class DispatcherCreateRequestController extends BaseController
         // Fetch user detail
         $user_detail = auth()->user();
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;
@@ -413,7 +414,7 @@ class DispatcherCreateRequestController extends BaseController
         // Convert trip start time as utc format
         $timezone = auth()->user()->timezone?:env('SYSTEM_DEFAULT_TIMEZONE');
         
-        $trip_start_time = Carbon::createFromFormat('d M, Y H:i:s', $request->trip_start_time, $timezone); 
+        $trip_start_time = $secondcarbonDateTime; 
         $request_params = [
             'request_number'=>$request_number,
             'is_later'=>true,

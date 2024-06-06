@@ -76,6 +76,13 @@ class OnboardingController extends Controller
 
     public function update(Request $request)
     {
+
+
+         if (env('APP_FOR') == 'demo') {
+            $message = trans('success_messages.you_are_not_authorised');
+            return redirect('system/settings/onboarding')->with('warning', $message);
+        }
+
         $id = $request->id;
         $data = Onboarding::findOrFail($id);
 //dd($request->all());
@@ -109,6 +116,10 @@ class OnboardingController extends Controller
 
     public function update1(Request $request)
     {
+         if (env('APP_FOR') == 'demo') {
+            $message = trans('success_messages.you_are_not_authorised');
+            return redirect('system/settings/onboarding')->with('warning', $message);
+        }
 
         $userId = 1;
         $data = Onboarding::first();

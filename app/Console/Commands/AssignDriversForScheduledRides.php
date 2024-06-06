@@ -64,6 +64,7 @@ class AssignDriversForScheduledRides extends Command
        $ride_cancelation_time =Carbon::now()->subMinutes(10)->format('Y-m-d H:i:s');
 
        $uncompleted_requests = Request::where('trip_start_time', '<', $ride_cancelation_time)
+           ->where('is_later', 1)
            ->where('is_completed', 0)
            ->where('is_cancelled', 0)
            ->where('is_driver_started', 0)
@@ -78,6 +79,11 @@ class AssignDriversForScheduledRides extends Command
            
            $uncompleted_request->update($update_parms);
 
+           if($uncompleted_request->driver_id){
+            Driver::where('id',$uncompleted_request->driver_id)->update(['available'=>true]);
+        }
+        
+        
            $this->database->getReference('requests/'.$uncompleted_request->id)->update(['is_cancelled'=>true,'updated_at'=> Database::SERVER_TIMESTAMP]);
            $this->database->getReference('bid-meta/'.$uncompleted_request->id)->remove();
            $this->database->getReference('request-meta/'.$uncompleted_request->id)->remove();
@@ -85,20 +91,8 @@ class AssignDriversForScheduledRides extends Command
         }
      }
 
-        $current_date = Carbon::now()->format('Y-m-d H:i:s');
-
-        $findable_duration = get_settings('minimum_time_for_search_drivers_for_schedule_ride');
-        if(!$findable_duration){
-            $findable_duration = 45;
-        }
-        $add_45_min = Carbon::now()->addMinutes($findable_duration)->format('Y-m-d H:i:s');
-        
-        $sub_45_min = Carbon::now()->subMinutes($findable_duration)->format('Y-m-d H:i:s');
-        // DB::enableQueryLog();
         $requests = Request::where('is_later', 1)
                     ->where('is_bid_ride',0)
-                    ->where('trip_start_time', '<=', $add_45_min)
-                    ->where('trip_start_time', '>', $sub_45_min)
                     ->where('is_completed', 0)->where('is_cancelled', 0)->where('is_driver_started', 0)->get();
 
         if ($requests->count()==0) {
@@ -107,10 +101,25 @@ class AssignDriversForScheduledRides extends Command
 
         // dd(DB::getQueryLog());
         foreach ($requests as $key => $request) {
+            $trip_start_time = $request->trip_start_time;
 
-            $trip_time_to_cancel = Carbon::parse($current_date)->subMinutes(25)->toDateTimeString();
-           
-            if(($request->trip_start_time)<$trip_time_to_cancel)
+            if($request->prefered_arriving_time){
+                $findable_duration = $request->prefered_arriving_time+2;
+            }else{
+                $findable_duration = get_settings('minimum_time_for_search_drivers_for_schedule_ride');
+            }
+            if(!$findable_duration){
+                $findable_duration = 45;
+            }
+            $condition_time = [Carbon::parse($request->trip_start_time),Carbon::parse($request->trip_start_time)->subMinutes($findable_duration+5)];
+            $current_time = Carbon::now();
+            if ($current_time->between($condition_time[0],$condition_time[1])) {
+
+            }else{
+                break;
+
+            }
+            if($current_time > $condition_time[0])
             {
                 $this->cancelRequest($request);
 

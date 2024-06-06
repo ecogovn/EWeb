@@ -1,8 +1,11 @@
 var baseUrl = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ":" + window.location.port : "");
   if(window.location.hostname == "localhost")
   {
-      baseUrl+="/ayo/public";
-  }     
+      baseUrl+="/SB3.0/public";
+  }
+  if(window.location.protocol == "http:"){
+    baseUrl+="/all_in_one/public";
+  }
          var stop_arr = 0;
         var marker; 
         var waypoints = [];
@@ -56,57 +59,40 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
                    
                     var checkedRadioButton = document.querySelector('input[name="radiobtn"]:checked');
                     var assign_method = checkedRadioButton.value;
+                    var tripData = {
+                        'vehicle_type': typeId,
+                        'payment_opt': 1,
+                        'pick_lat': pick_lat,
+                        'pick_lng': pick_lng, 
+                        'pick_address': pickAdd,  
+                        'pickup_poc_name': sender.name,
+                        'pickup_poc_mobile': sender.phone,
+                         'request_eta_amount': eta_amount,
+                            'transport_type':'taxi',
+                            'assign_method':assign_method,
+                         'dial_code':dialCode
+                    };
+                    var eta_amount = $('#vehicles').find(".truck-types.active").attr('data-amount'); 
                     if(type == "rental")
                     {
-                        var eta_amount = $('#vehicles').find(".truck-types.active").attr('data-amount'); 
-                        var tripData = {
-                            'vehicle_type': typeId,
-                            'payment_opt': 1,
-                            'pick_lat': pick_lat,
-                            'pick_lng': pick_lng, 
-                            'pick_address': pickAdd,  
-                            'pickup_poc_name': sender.name,
-                            'pickup_poc_mobile': sender.phone, 
-                            'transport_type':'taxi',
-                            'is_rental':1,
-                            'rental_package_id': $('#package_type').val(),
-                             'request_eta_amount': eta_amount,
-                             'assign_method':assign_method,
-                             'dial_code':dialCode
-    
-                        };
-                    }
-                    else{
+                        tripData.is_rental=1;
+                        tripData.rental_package_id= $('#package_type').val();   
+                    }else{
                         var drop_lat = document.getElementById('drop_lat').value;
                         var drop_lng = document.getElementById('drop_lng').value;
                         var dropAdd = document.getElementById('drop').value;
-                        var tripData = {
-                            'vehicle_type': typeId,
-                            'payment_opt': 1,
-                            'pick_lat': pick_lat,
-                            'pick_lng': pick_lng,
-                            'drop_lat': drop_lat,
-                            'drop_lng': drop_lng,
-                            'goods_type_id': goodsTypeId,
-                            'goods_type_quantity': goods_type_quantity,
-                            'pick_address': pickAdd,
-                            'drop_address': dropAdd,
-                            'stops': JSON.stringify(stop_data),
-                            'pickup_poc_name': sender.name,
-                            'pickup_poc_mobile': sender.phone,
-                            'drop_poc_name': receiver.name,
-                            'drop_poc_mobile': receiver.phone,
-                            'transport_type':taxi,
-                             'request_eta_amount': eta_amount,
-                             'assign_method':assign_method,
-                             'dial_code':dialCode
-    
-                        }
-                        if(type=="delivery"){
-                            tripData['goods_type_id'] = goodsTypeId;
-                            tripData['goods_type_quantity'] = goods_type_quantity;
-                        }
+                        tripData.drop_lat= drop_lat;
+                        tripData.drop_lng= drop_lng;
+                        tripData.drop_address= dropAdd;
                     }
+                    if(typeof goodsTypeId !== 'undefined' && goodsTypeId.length > 0){
+                        tripData.transport_type='delivery';
+                        tripData.goods_type_id = goodsTypeId;
+                        tripData.goods_type_quantity = goods_type_quantity;
+                    }
+                    tripData.stops= JSON.stringify(stop_data);
+                    tripData.drop_poc_name= receiver.name;
+                    tripData.drop_poc_mobile= receiver.phone;
                    
 
                     // if(typeof fareTypeId != "undefined"){
@@ -115,7 +101,6 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
 
                     if (dataModal == 'book-later') {
                         var requestDate = $('#date_picker').val();
-                        requestDate = requestDate.replace('T', ' ');
                         tripData.is_later = 1;
                         tripData.trip_start_time = requestDate + ':00';
                     }
@@ -556,13 +541,16 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
                       // Fetch goods type - api
                       // Get the query string from the current URL
                     const queryString = window.location.search;
+                    if(typeof google == "undefined"){
+                        window.location.reload();
+                    }
 
                     // Create a new URLSearchParams object with the query string
                     const params = new URLSearchParams(queryString);
 
                     // Get the value of a specific parameter
                      type = params.get('type');
-                     if(type == "delivery"){ 
+                     if(type == "delivery" || app_for !== 'taxi'){ 
                         
                         fetch(baseUrl+'/api/v1/common/goods-types')
                         .then(response => response.json())
@@ -889,8 +877,8 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
                 }
                 function initialize() {
                     // console.log("dfdff");
-                   var centerLat = parseFloat("11.015956");
-                    var centerLng = parseFloat("76.968985");
+                   var centerLat = default_latitude;
+                    var centerLng = default_longitude;
                     var pickup = document.getElementById('pickup');
                     var drop = document.getElementById('drop');//11.018511, 76.969897
                     var stop = document.getElementsByClassName('stop');//11.018511, 76.969897
@@ -945,6 +933,64 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
                         } else {
                             delivery_map.setCenter(place.geometry.location);
                             delivery_map.setZoom(17);
+                        }
+                        if($('#transport_type').val() == 'rental'){
+                        var data_ref = {
+                            pick_lat : pickUpLat,
+                            pick_lng : pickUpLng
+                        };
+                        console.log(data_ref);
+                        $.ajax({
+                                url: baseUrl+'/adhoc-list-packages',
+                                type: "get",
+                                data: data_ref,
+                                success: function(response) { 
+                                    $("#package_type").html('');
+                                    var html_data = `<option value="" disabled="" selected="">Select</option>`;
+                                    var html_data1 = ""; 
+                                        var defaultIcon =
+                                            baseUrl+"/dispatcher/assets/img/truck/taxi.png"; 
+                                            $(".vehicle_type_data").removeClass("d-none");
+                                            $(".vehicle_type").removeClass("d-none");
+                                    for(var i=0;i<response.data.length;i++)
+                                    {
+                                        html_data+=`<option value="`+response.data[i].id+`">`+response.data[i].package_name+`</option>`;
+                                        var price_data = response.data[i].typesWithPrice;
+                                        // console.log(price_data);
+                                        if(price_data !== null)
+                                        {
+                                            for(var k=0;k<price_data.data.length;k++)
+                                            {
+                                                var vehicleIcon = price_data.data[k].icon ? price_data.data[k].icon : defaultIcon;
+                                                   
+                                                html_data1+= `<div class="select-checkbox-btn truck-types package_${response.data[i].id}" data-id="${price_data.data[k].zone_type_id}" data-type-id="${price_data.data[k].type_id}" data-amount="${price_data.data[k].type_id}">
+                                                <label for="vehicle_${price_data.data[k].zone_type_id}" class="select-checkbox-btn-wrapper">
+                                                   <input id="vehicle_${price_data.data[k].zone_type_id}" name="types" type="radio" class="select-checkbox-btn-input" />
+                                                   <span class="select-checkbox-btn-content">
+                                                       <a  class="w-32 me-4 cursor-pointer">
+                                                           <div class="w-32 h-32 flex-none image-fit rounded-circle">
+                                                               <img alt="" class="rounded-circle" src="${vehicleIcon}">
+                                                           </div>
+                                                           <div class="fs-ls text-gray-600 truncate text-center mt-2">${price_data.data[k].name}</div>
+                                                       </a>
+                                                   </span>
+                                                    </label>
+                                                </div>`; 
+                                            }
+                                        }
+                                      
+                                    }
+                                    $("#package_type").html(html_data);
+                                    var vehiclesContainer = document.getElementById('vehicles'); 
+                                    vehiclesContainer.style.setProperty('display', 'none', 'important');
+                                    // vehiclesContainer.innerHTML = html_data1; 
+                                },
+                                error: function(response) { 
+                                    printErrorMsg(response.responseJSON.errors);
+            
+                                } 
+                            });
+
                         }
 
                         pickUpMarker.setPosition(place.geometry.location);
@@ -1128,6 +1174,11 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
             var data_val = $(this).val(); 
             var pick_lat = $("#pickup_lat").val(); 
             var pick_lng = $("#pickup_lng").val(); 
+            if(data_val == "delivery"){
+                $('#goods_details').show();
+            }else{
+                $('#goods_details').hide();
+            }
             var data_ref = {
                 transport_type : data_val,
                 pick_lat : pick_lat,
@@ -1276,7 +1327,7 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
         // var receiver = document.querySelector("#receiverPhone");
     
         var iti = window.intlTelInput(input, {
-            initialCountry: "in",
+            initialCountry: default_country,
             allowDropdown: true,
             separateDialCode: true,
             // onlyCountries: ['gb'],

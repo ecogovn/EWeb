@@ -84,7 +84,15 @@
 @else
 <td>{{$result->mobile}}</td>
 @endif
-<td>{{$result->vehicleType->name}}</td>
+@if($result->vehicleType!=null)
+<td>{{$result->vehicleType->name ?? '-'}}</td>
+@else
+<td>
+@foreach($result->driverVehicleTypeDetail as $vehicleType)
+{{ $vehicleType->vehicleType->name.',' }}
+@endforeach
+</td>
+@endif
 <td>{{$result->driverWallet->amount_balance}}</td>
 <!-- <td>
     <a href="{{ url('drivers/document/view',$result->id) }}" class="btn btn-social-icon btn-bitbucket">

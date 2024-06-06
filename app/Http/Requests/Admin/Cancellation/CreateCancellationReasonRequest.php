@@ -15,7 +15,7 @@ class CreateCancellationReasonRequest extends FormRequest
     {
         return [
             'user_type' => 'required',
-            'transport_type' => 'required',
+            'transport_type' => 'sometimes|required',
             'payment_type' => 'required',
             'arrival_status' => 'required',
             'reason' => 'required|min:5'

@@ -18,8 +18,9 @@ class OnboardingTransformer extends Transformer
         $baseUrl = config('app.url');
         $imagePath = $baseUrl . '/storage/onboarding/upload/' . $onboarding->onboarding_image;
         $params= [
+
             'order' => $onboarding->order,
-            'id' => $onboarding->id,
+            'id' => $onboarding->sn_o,
             'screen' => $onboarding->screen,
             'title' => $onboarding->title,
             'onboarding_image'=>$imagePath,

@@ -89,13 +89,7 @@
                             cache: false,
                             success: function(res) {
 
-                                fetch('banner_image/fetch?search=' + search_keyword)
-                                    .then(response => response.text())
-                                    .then(html => {
-                                        document.querySelector('#js-banner_images-partial-target')
-                                            .innerHTML = html
-                                    });
-
+                                window.location.reload();
                                 $.toast({
                                     heading: '',
                                     text: res,

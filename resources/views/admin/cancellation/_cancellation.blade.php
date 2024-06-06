@@ -1,9 +1,12 @@
+
 <table class="table table-hover">
     <thead>
         <tr>
             <th> @lang('view_pages.s_no')</th>
             <th> @lang('view_pages.reason')</th>
-            <th> @lang('view_pages.transport_type')</th>
+            @if($app_for == "bidding" || $app_for == "super")
+            <th>@lang('view_pages.transport_type')</th>
+            @endif
             <th> @lang('view_pages.user_type')</th>
             <th> @lang('view_pages.payment_type')</th>
             <th> @lang('view_pages.status')</th>
@@ -20,7 +23,9 @@
         <tr>
             <td>{{ $i++ }} </td>
             <td>{{$result->reason}}</td>
+            @if($app_for == "bidding" || $app_for == "super")            
             <td>{{$result->transport_type}}</td>
+            @endif
             <td>
                 <span class="label label-warning">{{ ucfirst($result->user_type) }}</span>
             </td>

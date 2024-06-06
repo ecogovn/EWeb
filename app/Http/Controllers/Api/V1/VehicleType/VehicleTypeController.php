@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\V1\BaseController;
 use App\Transformers\User\ZoneTypeTransformerOld;
 use App\Base\Services\ImageUploader\ImageUploaderContract;
 use App\Http\Requests\Admin\VehicleTypes\CreateVehicleTypeRequest;
+use Log;
+use Config;
 
 /**
  * @group Vehicle Management
@@ -32,6 +34,7 @@ class VehicleTypeController extends BaseController
      * @var \App\Models\Admin\VehicleType
      */
     protected $vehicle_type;
+
 
     /**
      * VehicleTypeController constructor.
@@ -110,11 +113,17 @@ class VehicleTypeController extends BaseController
     public function getVehicleTypesByServiceLocation(ServiceLocation $service_location)
     {
         // DB::enableQueryLog();
-
+        $query = $this->vehicle_type->whereActive(true)->whereHas('zoneType.zone', function ($query) use ($service_location) {
+            $query->where('service_location_id', $service_location->id);
+        });
+        if(config('app.app_for') !== 'taxi' && config('app.app_for') !== "delivery")
+        {
         $response = $this->vehicle_type->whereActive(true)->whereHas('zoneType.zone', function ($query) use ($service_location) {
             $query->where('service_location_id', $service_location->id);
         })->where('is_taxi',request()->transport_type)->orWhere('is_taxi','both')->get();
+        }
 
+        $response = $query->get();
         // dd(DB::getQueryLog());
 
         return $this->respondSuccess($response);

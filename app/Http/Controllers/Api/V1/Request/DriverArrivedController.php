@@ -13,6 +13,7 @@ use App\Jobs\Notifications\AndroidPushNotification;
 use App\Transformers\Requests\TripRequestTransformer;
 use App\Jobs\Notifications\SendPushNotification;
 use Kreait\Firebase\Contract\Database;
+use App\Models\Request\RequestCycles; 
 
 /**
  * @group Driver-trips-apis
@@ -63,6 +64,36 @@ class DriverArrivedController extends BaseController
 
         dispatch(new SendPushNotification($user,$title,$body));
         dispatch_notify:
+
+            $get_request_datas = RequestCycles::where('request_id', $request_detail->id)->first();
+        if($get_request_datas)
+        { 
+            $user_data = User::find(auth()->user()->driver->user_id);
+            $request_data = json_decode(base64_decode($get_request_datas->request_data), true);
+            $request_datas['request_id'] = $request_detail->id;
+            $request_datas['user_id'] = $request_detail->user_id; 
+            $request_datas['driver_id'] = auth()->user()->driver->id; 
+            $driver_details['name'] = auth()->user()->driver->name;
+            $driver_details['mobile'] = auth()->user()->driver->mobile;
+            $driver_details['image'] = $user_data->profile_picture;
+            $rating = number_format(auth()->user()->rating, 2);
+            $data[0]['rating'] = $rating; 
+            $data[0]['status'] = 4;
+            $data[0]['process_type'] = "trip_arrived";
+            $data[0]['orderby_status'] = intval($get_request_datas->orderby_status) + 1;
+            $data[0]['dricver_details'] = $driver_details;
+            $data[0]['created_at'] = date("Y-m-d H:i:s", time());  
+            $request_data1 = array_merge($request_data, $data);
+            $request_datas['orderby_status'] = intval($get_request_datas->orderby_status) + 1;
+            $request_datas['request_data'] = base64_encode(json_encode($request_data1)); 
+            // Log::info($get_request_datas->orderby_status);
+            // Log::info($request_data1); 
+            // Log::info("Data checking");
+            $insert_request_cycles = RequestCycles::where('id',$get_request_datas->id)->update($request_datas);
+
+
+        }
+        
         $this->database->getReference('bid-meta/'.$request->id)->remove();
         
         return $this->respondSuccess(null, 'driver_arrived');

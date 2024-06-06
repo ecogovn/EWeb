@@ -24,10 +24,11 @@
                         </div>
 
                         <div class="col-sm-12">
-                            <form method="post" class="form-horizontal" action="{{url('types/update',$type->id)}}"
+                            <form method="post" id="type-form" class="form-horizontal" action="{{url('types/update',$type->id)}}"
                                   enctype="multipart/form-data">
                                 {{csrf_field()}}
                                 <div class="row">
+                                    @if($app_for == 'bidding' || $app_for == 'super')
                                     <div class="col-6">
                                         <div class="form-group">
                                             <label for="">@lang('view_pages.transport_type') <span
@@ -46,7 +47,8 @@
                                             <span class="text-danger">{{ $errors->first('transport_type') }}</span>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    @endif                                   
+                                     <div class="col-6">
                                         <div class="form-group m-b-25">
                                             <label for="name">@lang('view_pages.name') <span
                                                     class="text-danger">*</span></label>
@@ -57,6 +59,7 @@
 
                                         </div>
                                     </div>
+                                    @if($app_for !== 'delivery')
                                     <div class="col-6" name="taxi" id="taxi">
                                         <div class="form-group m-b-25">
                                             <label for="name">@lang('view_pages.capacity') <span
@@ -67,6 +70,8 @@
                                             <span class="text-danger">{{ $errors->first('capacity') }}</span>
                                         </div>
                                     </div>
+                                    @endif
+                                    @if($app_for !=="taxi")
                                     <div class="col-6" name="delivery" id="delivery">
                                         <div class="form-group m-b-25">
                                             <label
@@ -90,6 +95,7 @@
                                             <span class="text-danger">{{ $errors->first('size') }}</span>
                                         </div>
                                     </div>
+                                    @endif
                                     <div class="col-6">
                                         <div class="form-group m-b-25">
                                             <label for="short_description">@lang('view_pages.short_description') <span
@@ -149,6 +155,7 @@
                                         </div>
                                     </div>
 
+                                    @if($app_for == "bidding")
                                     <div class="col-6">
                                         <div class="form-group">
                                             <label for="">@lang('view_pages.trip_dispatch_type') <span
@@ -164,14 +171,15 @@
                                             <span class="text-danger">{{ $errors->first('trip_dispatch_type') }}</span>
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
 
 
                                 <div class="form-group">
-                                    <div class="col-6">
+                                    <div class="col-6 btn-file img_remove">
                                         <label for="icon">@lang('view_pages.icon')</label><br>
                                         <img id="blah" src="{{old('icon',asset($type->icon))}}" alt="missing image"><br>
-                                        <input type="file" id="icon" onchange="readURL(this)" name="icon"
+                                        <input type="file" id="icon" class="input-group" onchange="readURL(this)" name="icon"
                                                style="display:none">
                                         <button class="btn btn-primary btn-sm" type="button"
                                                 onclick="$('#icon').click()"
@@ -210,57 +218,112 @@
 
     <!-- Bootstrap fileupload js -->
     <script>
-        $(document).ready(function () {
-            // console.log(document.getElementById("transport_type").value);
+$(document).ready(function(){
+    var form = $('#type-form');
 
-            var transport_type =document.getElementById("transport_type").value;
+    @if($app_for == "super" || $app_for == 'bidding')
+    $(form).on('submit', function(e){
+        e.preventDefailt();
+        if($('#transport_type').val() == 'delivery'){
+            if(check_delivery()){
+                form.submit();
+            }
+        }
+        if($('#transport_type').val() == 'taxi'){
+            if(check_taxi()){
+                form.submit();
+            }
+        }
+        if($('#transport_type').val() == 'both'){
+            if(check_delivery() && check_taxi()){
+                form.submit();
+            }
+        }
+    });
+    $('#transport_type').on('change', function(e) {
+        var selected = $(e.target).val();
+    if ( selected == 'taxi')
+    {
+        $("#taxi").show();
+        $("#capacity").attr('name','capacity');
+        $("#delivery").hide();
+        $("#maximum_weight_can_carry").attr('name','');
+        $("#size").attr('name','');
+        $("#delivery_1").hide();
 
-            // alert(transport_type);
+    }
+    else  if ( selected == 'delivery')
+    {
+        $("#taxi").hide();
+        $("#capacity").attr('name','');
+        $("#delivery").show();
+        $("#maximum_weight_can_carry").attr('name','maximum_weight_can_carry');
+        $("#delivery_1").show();
+        $("#size").attr('name','size');
+    }
+    else  if ( selected == 'both')
+    {
+        $("#taxi").show();
+        $("#capacity").attr('name','capacity');
+        $("#delivery").show();
+        $("#maximum_weight_can_carry").attr('name','maximum_weight_can_carry');
+        $("#delivery_1").show();
+        $("#size").attr('name','size');
+    }
+    else 
+    {
+        $("#taxi").hide();
+        $("#delivery").show();
+        $("#delivery_1").show();
+        $("#size").attr('name','size');
+        $("#maximum_weight_can_carry").attr('name','maximum_weight_can_carry');
+    }
 
-            if (transport_type == 'taxi') {
-                        $("#taxi").show();
-                        $("#delivery").hide();
-                        $("#delivery_size").hide();
+    });
+    @elseif($app_for == "taxi")
+    $(form).on('submit', function(e){
+        e.preventDefailt();
+        if(check_taxi()){
+            form.submit();
+        }
+    });
+    @elseif($app_for == "delivery")
+    $(form).on('submit', function(e){
+        e.preventDefailt();
+        if(check_delivery()){
+            form.submit();
+        }
+    });
+    @endif
+    })
 
-                    } else if (transport_type == 'delivery') {
-                        $("#taxi").hide();
-                        $("#delivery").show();
-                        $("#delivery_size").show();
-                    } else if (transport_type == 'both') {
-                        $("#taxi").show();
-                        $("#delivery").show();
-                        $("#delivery_size").show();
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.querySelectorAll('.btn-file input[type="file"]').forEach((input) => {
+        input.addEventListener('change', function(event) {
+            let input = event.target;
+            let key = input.id.split('_').pop(); // Get the key from the input ID
+            let label = input.value.replace(/\\/g, '/').replace(/.*\//, '');
+            let textInput = input.closest('.input-group').querySelector('input[type="text"]');
+            let imgPreview = document.getElementById('img_preview_' + key);
+
+            if (textInput) {
+                textInput.value = label;
+            }
+
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    if (imgPreview) {
+                        imgPreview.src = e.target.result;
                     }
-                     else {
-                        $("#taxi").hide();
-                        $("#delivery").hide();
-                        $("#delivery_size").hide();
-                    }
-
-            $('#transport_type').on('change', function () {
-                if (this.value == 'taxi') {
-                    $("#taxi").show();
-                    $("#delivery").hide();
-                    $("#delivery_size").hide();
-
-                } else if (this.value == 'delivery') {
-                    $("#taxi").hide();
-                    $("#delivery").show();
-                    $("#delivery_size").show();
-                } else if (this.value == 'both') {
-                    $("#taxi").show();
-                    $("#delivery").show();
-                    $("#delivery_size").show();
-                }
-                 else {
-                    $("#taxi").hide();
-                    $("#delivery").hide();
-                    $("#delivery_size").hide();
                 }
 
-            });
+                reader.readAsDataURL(input.files[0]);
+            }
         });
-
+    });
+});
     </script>
 
 @endsection

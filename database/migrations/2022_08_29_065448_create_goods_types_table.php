@@ -13,6 +13,7 @@ class CreateGoodsTypesTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('goods_types')) {
         Schema::create('goods_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('goods_type_name');
@@ -20,6 +21,7 @@ class CreateGoodsTypesTable extends Migration
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
+      }
     }
 
     /**

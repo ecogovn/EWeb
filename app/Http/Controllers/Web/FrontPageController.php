@@ -73,7 +73,95 @@ class FrontPageController extends Controller
         return redirect('delivery-dispatch/dashboard');
 
         }
+/*taxi*/
+        if($conditional_host[0] =='tagxi-docs'){
 
+        return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-server'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='tagxi-dispatch'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
+/*delivery*/
+        if($conditional_host[0] =='delivery-docs'||$conditional_host[0] =='tagxi-delivery-docs'){
+
+            return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-delivery'||$conditional_host[0] =='delivery'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+
+        }
+
+        if($conditional_host[0] =='tagxi-delivery-dispatch'||$conditional_host[0] =='delivery-dispatch'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
+/*super-app*/
+        if($conditional_host[0] =='tagxi-super-docs'){
+
+        return redirect('user-manual');
+
+        }
+
+        if($conditional_host[0] =='tagxi-super-server'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='admin'){
+
+            $user = User::belongsToRole('super-admin')->first();
+
+            auth('web')->login($user, true);
+
+            return redirect('dashboard');
+
+        }
+
+        if($conditional_host[0] =='tagxi-super-dispatcher'){
+
+        $user = User::belongsToRole('dispatcher')->first();
+
+        auth('web')->login($user, true);
+
+        return redirect('dispatch/home');
+
+        }
         $data=FrontPage::first();
         $p=Storage::disk(env('FILESYSTEM_DRIVER'))->url(file_path($this->uploadPath(),''));
         //return view('admin.layouts.web_header',compact('data','p'));

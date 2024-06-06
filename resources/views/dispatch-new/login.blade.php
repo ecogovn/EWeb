@@ -360,12 +360,6 @@ input[type=email], input[type=password]:placeholder {
         <br><span class="text-danger">{{ $errors->first('password') }}</span>
       </div>
 
-      <!-- reCAPTCHA container -->
-      @if($recaptcha_enabled=="1")
-      <div class="g-recaptcha" id="recaptcha" data-sitekey="{{ get_recaptcha_settings('reacptcha_site_key') }}"></div> 
-      <span id="recaptcha-error" class="text-danger" style="display: none;">{{ $errors->first('recaptcha') }}</span>
-
-      @endif
       <input type="submit" class="fadeIn fourth" value="Log In">
     </form>
 

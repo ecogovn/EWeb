@@ -30,7 +30,7 @@ class UpdateOwnerRequest extends FormRequest
             'surname' => 'required',
             'ifsc' => 'required',
             'account_no' => 'required',
-            'transport_type' => 'required',
+            'transport_type' => 'sometimes',
         ];
     }
 }

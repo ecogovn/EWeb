@@ -48,10 +48,21 @@ class CancellationReasonsController extends BaseController
         $user_type = access()->hasRole(Role::USER)?'user':'driver';
 
         $transport_type = request()->transport_type;
+       
+        $app_for = config('app.app_for');
+
+        if($app_for=='taxi' || $app_for=='delivery')
+        {
+        $query = $this->cancellation_reasons->where('user_type', $user_type);
+
+        }else{
 
         $query = $this->cancellation_reasons->where('user_type', $user_type)->where(function($query)    use($transport_type){
                     $query->where('transport_type',$transport_type)->orWhere('transport_type','both');
                 });
+            
+        }
+
 
         $result=filter($query, new CancellationReasonsTransformer, new CancellationReasonsFilter)->get();
 

@@ -101,10 +101,6 @@ class DriverEndRequestController extends BaseController
 
         $currency_code = $service_location->currency_code;
 
-
-        // $currency_code = get_settings('currency_code');
-        // $requested_currency_symbol = get_settings('currency_symbol');
-
         $requested_currency_symbol = $service_location->currency_symbol;
 
 
@@ -120,11 +116,11 @@ class DriverEndRequestController extends BaseController
         $duration = $this->calculateDurationOfTrip($request_detail->trip_start_time);
 
 
-Log::info('time');
+// Log::info('time');
 
-Log::info($duration);
+// Log::info($duration);
 
-Log::info('time');
+// Log::info('time');
         if(env('APP_FOR')!='demo'){
 
 
@@ -145,10 +141,10 @@ Log::info('time');
 
         if ($distance_matrix->status =="OK" && $distance_matrix->rows[0]->elements[0]->status != "ZERO_RESULTS") {
             $distance_in_meters = get_distance_value_from_distance_matrix($distance_matrix);
-            $distance = $distance_in_meters / 1000;
+            $distance = ceil($distance_in_meters / 1000);
 
             if ($distance < $request->distance) {
-                $distance = (double)$request->distance;
+                $distance = ceil((double)$request->distance);
             }
         }
 
@@ -157,7 +153,7 @@ Log::info('time');
         }
 
         if ($request_detail->unit==UnitType::MILES) {
-            $distance = kilometer_to_miles($distance);
+            $distance = ceil(kilometer_to_miles($distance));
         }
 
         if(($request_detail->payment_opt)==2)
@@ -169,7 +165,7 @@ Log::info('time');
         }
 
 
-        Log::info($request_detail['web_booking']);
+        // Log::info($request_detail['web_booking']);
         $request_detail->update([
             'is_completed'=>true,
             'completed_at'=>date('Y-m-d H:i:s'),
@@ -208,6 +204,7 @@ Log::info('time');
         $calculated_bill['calculated_waiting_time'] = $waiting_time;
         $calculated_bill['waiting_charge_per_min'] = $zone_type_price->waiting_charge;
 
+
         if($request_detail->is_rental && $request_detail->rental_package_id){
 
             $chosen_package_price = ZoneTypePackagePrice::where('zone_type_id',$request_detail->zone_type_id)->where('package_type_id',$request_detail->rental_package_id)->first();
@@ -216,37 +213,6 @@ Log::info('time');
             $exceeding_range = 0;
             $package= null;
 
-        // $zone_type_package_prices = $zone_type->zoneTypePackage()->orderBy('free_min','asc')->get();
-
-
-        // foreach ($zone_type_package_prices as $key => $zone_type_package_price) {
-
-        //     if($zone_type_package_price->free_min == $duration){
-        //         $package = $zone_type_package_price;
-
-        //         break;
-        //     }
-        //     elseif($zone_type_package_price->free_min < $duration){
-        //         $previous_range = $zone_type_package_price->free_min;
-        //         $previous_zone_type = $zone_type_package_price;
-        //     }
-        //     else{
-        //         $exceeding_range = $zone_type_package_price->free_min;
-        //         $exceeding_zone_type = $zone_type_package_price;
-        //     }
-
-        //     if($exceeding_range != 0 && $package == null){
-        //         $package = ($previous_range == 0) ? $exceeding_zone_type : $previous_zone_type;
-
-
-        //         break;
-
-        //     } else {
-        //         $package = $previous_zone_type;
-
-
-        //     }
-        // }
 
         if($package){
 
@@ -648,33 +614,39 @@ Log::info('time');
         }
 
     }
+        $zone_type = $request_detail->zoneType;
+    
         // Get service tax percentage from settings
-        $tax_percent = get_settings('service_tax');
+        $tax_percent = $zone_type->service_tax;
         $tax_amount = ($sub_total * ($tax_percent / 100));
+        $app_for = config('app.app_for');
         // Get Admin Commision
-        $admin_commision_type = get_settings('admin_commission_type');
-        $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
+Log::info("__________tax_percent___________");
+Log::info($tax_percent);
+Log::info("__________zone_type___________");
+Log::info($zone_type);
 
-        $service_fee = get_settings('admin_commission');
+
+
+        $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
+        $admin_commision_type = $zone_type_price->zoneType->admin_commision_type;
+        $service_fee = $zone_type_price->zoneType->admin_commision;
+        $tax_percent = $zone_type_price->zoneType->service_tax; 
+        $tax_amount = ($sub_total * ($tax_percent / 100));
+
         $driver = auth()->user()->driver;
 
-        Log::info("end");
-Log::info($driver);
-Log::info("end");
+Log::info("__________tax_percent___________");
+Log::info($tax_percent);
 
-
-if($driver->owner_id != NULL){
-    $admin_commission_type_for_driver = get_settings('admin_commission_type_for_owner');
-    $service_fee_for_driver = get_settings('admin_commission_for_owner');
-Log::info("onwer");
-Log::info($admin_commission_type_for_driver);
-Log::info($service_fee_for_driver);
-}
-else {
-    $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
-    $service_fee_for_driver = get_settings('admin_commission_for_driver');
-    Log::info("driver");
-}
+        if($driver->owner_id != NULL){
+            $admin_commission_type_for_driver = get_settings('admin_commission_type_for_owner');
+            $service_fee_for_driver = get_settings('admin_commission_for_owner');
+        }
+        else {
+            $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
+            $service_fee_for_driver = get_settings('admin_commission_for_driver');
+        }
 
 
 
@@ -684,11 +656,7 @@ else {
 
         if($request_detail->is_bid_ride){
 
-            // $admin_commision = $sub_total/(1+($service_fee/100));
-
             $sub_total -=$admin_commision;
-
-            // $tax_amount = $sub_total/(1+($tax_percent/100));
 
             $sub_total -=$tax_amount;
 
@@ -696,21 +664,13 @@ else {
         }
 
         }else{
-
             $admin_commision = $service_fee;
 
-            if($request_detail->is_bid_ride){
-
+            if($request_detail->is_bid_ride)
+            {
                 $sub_total -=$admin_commision;
-
-                // $tax_amount = $sub_total/(1+($tax_percent/100));
-
                 $sub_total -=$tax_amount;
-
-
             }
-
-
         }
         // Admin commision with tax amount
         $admin_commision_with_tax = $tax_amount + $admin_commision;
@@ -740,25 +700,25 @@ else {
         $admin_commision_with_tax += $admin_commision_from_driver;
 
         return $result = [
-        'base_price'=>round($base_price),
+        'base_price'=>ceil($base_price),
         'base_distance'=>$zone_type_price->base_distance,
         'price_per_distance'=>$zone_type_price->price_per_distance,
-        'distance_price'=>round($distance_price),
+        'distance_price'=>ceil($distance_price),
         'price_per_time'=>$zone_type_price->price_per_time,
-        'time_price'=>round($time_price),
-        'promo_discount'=>round($discount_amount),
-        'waiting_charge'=>round($waiting_charge),
-        'service_tax'=>round($tax_amount),
+        'time_price'=>ceil($time_price),
+        'promo_discount'=>ceil($discount_amount),
+        'waiting_charge'=>ceil($waiting_charge),
+        'service_tax'=>ceil($tax_amount),
         'service_tax_percentage'=>$tax_percent,
-        'admin_commision'=>round($admin_commision),
-        'admin_commision_with_tax'=>round($admin_commision_with_tax),
-        'driver_commision'=>round($driver_commision),
-        'admin_commision_from_driver'=>round($admin_commision_from_driver),
-        'total_amount'=>round($total_amount),
+        'admin_commision'=>ceil($admin_commision),
+        'admin_commision_with_tax'=>ceil($admin_commision_with_tax),
+        'driver_commision'=>ceil($driver_commision),
+        'admin_commision_from_driver'=>ceil($admin_commision_from_driver),
+        'total_amount'=>ceil($total_amount),
         'total_distance'=>$distance,
         'total_time'=>$duration,
-        'airport_surge_fee'=>$airport_surge_fee,
-        'cancellation_fee'=>$cancellation_fee
+        'airport_surge_fee'=>ceil($airport_surge_fee),
+        'cancellation_fee'=>ceil($cancellation_fee)
         ];
     }
 
@@ -771,7 +731,8 @@ else {
         $request_place = $request_detail->requestPlace;
 
         $airport_surge = find_airport($request_place->pick_lat,$request_place->pick_lng);
-        if($airport_surge==null){
+        if($airport_surge==null)
+        {
             $airport_surge = find_airport($request_place->drop_lat,$request_place->drop_lng);
         }
 
@@ -871,22 +832,32 @@ else {
                 $sub_total = $sub_total - $discount_amount;
             }
         }
+        $zone_type = $request_detail->zoneType;
 
         // Get service tax percentage from settings
-        $tax_percent = get_settings('service_tax');
+        $tax_percent = $zone_type->service_tax;
         $tax_amount = ($sub_total * ($tax_percent / 100));
-        // Get Admin Commision
-        $service_fee = get_settings('admin_commission');
 
-        $service_fee_for_driver = get_settings('admin_commission_for_driver');
+        // Get Admin Commision
+        $admin_commision_type = $zone_type_price->zoneType->admin_commision_type;
+        $service_fee = $zone_type_price->zoneType->admin_commision;
+        $tax_percent = $zone_type_price->zoneType->service_tax; 
+        $tax_amount = ($sub_total * ($tax_percent / 100));
         $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
 
+        $driver = auth()->user()->driver;
 
-        // Admin commision
-        // Admin commision
-        // Get Admin Commision
-        $admin_commision_type = get_settings('admin_commission_type');
 
+
+        if($driver->owner_id != NULL){
+            $admin_commission_type_for_driver = get_settings('admin_commission_type_for_owner');
+            $service_fee_for_driver = get_settings('admin_commission_for_owner');
+        }
+        else {
+            $admin_commission_type_for_driver = get_settings('admin_commission_type_for_driver');
+            $service_fee_for_driver = get_settings('admin_commission_for_driver');
+        }
+        
         if($admin_commision_type==1){
 
         $admin_commision = ($sub_total * ($service_fee / 100));

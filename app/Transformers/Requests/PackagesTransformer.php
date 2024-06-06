@@ -130,7 +130,10 @@ class PackagesTransformer extends Transformer
         $zone_types = [];
         $user = auth()->user();
 
-
+Log::info('zoneType');
+Log::info($types);
+Log::info($zone_detail);
+Log::info($package);
         foreach ($types as $key => $type) {
 
             $prices = $type->zoneTypePackage()->where('package_type_id',$package->id)->first();

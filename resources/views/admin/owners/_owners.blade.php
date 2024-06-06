@@ -37,13 +37,12 @@
                                         <td> {{ $result->owner_name }}</td>
                                         <td>{{ $result->email }}</td>
                                         <td>{{ $result->mobile }}</td>
-                                        @if (auth()->user()->can('view-owner-document'))
                                         <td class="manage-driver text-center">
                                             <a href="{{url('owners/document/view', $result->id) }}" class="btn btn-social-icon btn-bitbucket">
                                                 <i class="fa fa-file-code-o"></i>
                                             </a>
                                         </td>
-                                        @endif
+
                                         <td>
                                             @if ($result->approve == '1')
                                                 <span class="badge badge-success font-size-10">{{trans('view_pages.approved')}}</span>
@@ -54,7 +53,7 @@
                                         <td>
     <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@lang('view_pages.action')
     </button>
-        <div class="dropdown-menu">
+  <div class="dropdown-menu">
         @if(auth()->user()->can('edit-owner'))         
             <a class="dropdown-item" href="{{url('owners',$result->id)}}">
             <i class="fa fa-pencil"></i>@lang('view_pages.edit')</a>
@@ -74,35 +73,13 @@
             <i class="fa fa-dot-circle-o"></i>@lang('view_pages.owner_payment_history')</a>
         @endif
         @if(auth()->user()->can('delete-owner'))         
-            <a class="dropdown-item" href="{{url('owners/delete',$result->id)}}">
+            <a class="dropdown-item sweet-delete" data-url="{{url('owners/delete',$result->id)}}">
             <i class="fa fa-trash-o"></i>@lang('view_pages.delete')</a>
         @endif
         </div>
     </div>
                                         </td>
-{{-- 
-                                        <td class="action">
-                                            <div class="dropdown">
-                                                <button class="dropbtn">@lang('view_pages.action')</button>
-                                                <div class="dropdown-content">
-                                                    @if (auth()->user()->can('edit-owner'))
-                                                        <a class="grey-text text-darken-2" href="{{url('owners',$result->id) }}">{{ trans('view_pages.edit')}}</a>
-                                                    @endif
 
-                                                    @if (auth()->user()->can('delete-owner'))
-                                                        <a class="sweet-delete grey-text text-darken-2" href="#" data-url="{{url('owners/delete',$result->id) }}">{{ trans('view_pages.delete')}}</a>
-                                                    @endif
-                                                    
-                                                    @if (auth()->user()->can('toggle-owner-status'))
-                                                        @if ($result->approve)
-                                                            <a class="sweet-decline grey-text text-darken-2" href="{{url('owners/toggle_approve',$result->id) }}">{{ trans('view_pages.block')}}</a>
-                                                        @else
-                                                            <a class="sweet-approve grey-text text-darken-2" href="{{url('owners/toggle_approve',$result->id) }}">{{ trans('view_pages.approve')}}</a>
-                                                        @endif
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </td> --}}
                                     </tr>
                                 @endforeach
                             @endif

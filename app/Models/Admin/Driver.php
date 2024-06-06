@@ -4,6 +4,7 @@ namespace App\Models\Admin;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Country;
 use App\Models\Master\CarMake;
 use App\Models\Master\CarModel;
 use App\Models\Request\Request;
@@ -18,6 +19,7 @@ use App\Models\Payment\WalletWithdrawalRequest;
 use App\Models\Payment\DriverSubscription;
 use App\Models\Request\DriverRejectedRequest;
 use Grimzy\LaravelMysqlSpatial\Eloquent\SpatialTrait;
+use Config;
 
 class Driver extends Model
 {
@@ -35,8 +37,9 @@ class Driver extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id','owner_id','service_location_id', 'name','mobile','email','address','state','city','country','postal_code','gender','vehicle_type','car_make','car_model','car_color','car_number','today_trip_count','total_accept','total_reject','acceptance_ratio','last_trip_date','active','approve','available','reason','uuid','fleet_id','vehicle_year','transport_type','route_coordinates','my_route_address','my_route_lat','my_route_lng','enable_my_route_booking','custom_make','custom_model'
+        'user_id','owner_id','service_location_id', 'name','mobile','email','address','state','city','country','postal_code','gender','vehicle_type','car_make','car_model','car_color','car_number','today_trip_count','total_accept','total_reject','acceptance_ratio','last_trip_date','active','approve','available','reason','uuid','fleet_id','vehicle_year','route_coordinates','my_route_address','my_route_lat','my_route_lng','enable_my_route_booking','custom_make','custom_model','transport_type'
     ];
+
     /**
     * The accessors to append to the model's array form.
     *
@@ -289,6 +292,17 @@ class Driver extends Model
     public function enabledRoutes()
     {
         return $this->hasMany(DriverEnabledRoutes::class, 'driver_id', 'id');
+    }
+
+    /**
+    * The driver that the country belongs to.
+    * @tested
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+    */
+    public function countryDetail()
+    {
+        return $this->belongsTo(Country::class, 'country', 'id');
     }
 
 }

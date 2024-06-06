@@ -62,7 +62,9 @@ class CreateNewRequestController extends BaseController
     */
     public function createRequest(CreateTripRequest $request)
     {
-        // Log::info($request);
+        Log::info("_____craete Request___");
+        Log::info($request);
+
 
         /**
         * Check if the user has registred a trip already
@@ -141,11 +143,21 @@ class CreateNewRequestController extends BaseController
             'service_location_id'=>$service_location->id,
             'timezone'=>$service_location->timezone,
             'ride_otp'=>rand(1111, 9999),
-            'transport_type'=>'taxi',
             'poly_line'=>$request->poly_line,
+            'is_pet_available' => $request->is_pet_available,
+            'is_luggage_available' => $request->is_luggage_available,            
 
         ];
         $request_params['offerred_ride_fare']=0;
+
+        $app_for = config('app.app_for');
+
+
+        if($app_for!='taxi' || $app_for!='delivery')
+         {
+            $request_params['transport_type']='taxi';
+            
+         }
 
 
         if($request->has('is_bid_ride') && $request->input('is_bid_ride')==1){
@@ -189,8 +201,8 @@ class CreateNewRequestController extends BaseController
             $request_params['rental_package_id'] = $request->rental_pack_id;
         }
          Log::info("--------request_stops---------");
-         Log::info($request->all());
-         Log::info("--------request_stops---------");
+         Log::info($request_params);
+         // Log::info("--------request_stops---------");
 
         // store request details to db
         // DB::beginTransaction();
@@ -330,10 +342,18 @@ class CreateNewRequestController extends BaseController
             'service_location_id'=>$service_location->id,
             'timezone'=>$service_location->timezone,
             'ride_otp'=>rand(1111, 9999),
-            'transport_type'=>'taxi',
+            // 'transport_type'=>'taxi',
             'on_search'=>false,
+            'is_pet_available' => $request->is_pet_available,
+            'is_luggage_available' => $request->is_luggage_available,
         ];
+        $app_for = config('app.app_for');
 
+        if($app_for!='taxi' || $app_for!='delivery')
+         {
+            $request_params['transport_type']='taxi';
+            
+         }
         if($request->has('discounted_total') && $request->discounted_total){
 
             $request_params['discounted_total'] = $request->discounted_total;
@@ -379,12 +399,12 @@ class CreateNewRequestController extends BaseController
         }
 
         // store request details to db
-        DB::beginTransaction();
-        try {
+        // DB::beginTransaction();
+        // try {
             $request_detail = $this->request->create($request_params);
-         Log::info("--------request_stops---------");
-         Log::info($request->all());
-         Log::info("--------request_stops---------");
+         // Log::info("--------request_stops---------");
+         // Log::info($request_params);
+         // Log::info("--------request_stops---------");
               // To Store Request stops along with poc details
         if ($request->has('stops')) {
 
@@ -415,13 +435,13 @@ class CreateNewRequestController extends BaseController
 
             $request_result =  fractal($request_detail, new TripRequestTransformer)->parseIncludes('userDetail');
             // @TODO send sms & email to the user
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error($e);
-            Log::error('Error while Create new schedule request. Input params : ' . json_encode($request->all()));
-            return $this->respondBadRequest('Unknown error occurred. Please try again later or contact us if it continues.');
-        }
-        DB::commit();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     Log::error($e);
+        //     Log::error('Error while Create new schedule request. Input params : ' . json_encode($request->all()));
+        //     return $this->respondBadRequest('Unknown error occurred. Please try again later or contact us if it continues.');
+        // }
+        // DB::commit();
 
 
         $request_datas['request_id'] = $request_detail->id;

@@ -58,8 +58,9 @@ class VehicleTypeController extends BaseController
         $url = request()->fullUrl(); //get full url
         return cache()->tags('vehilce_types')->remember($url, Carbon::parse('10 minutes'), function () use ($queryFilter,$url) {
             $query = VehicleType::query();
+            $app_for = config('app.app_for');
             $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
-            return view('admin.types._types', compact('results'))->render();
+            return view('admin.types._types', compact('results','app_for'))->render();
         });
     }
 
@@ -82,9 +83,10 @@ class VehicleTypeController extends BaseController
     {
         $page = trans('pages_names.add_type');
         // $services = ServiceLocation::whereActive(true)->get();
+            $app_for = config('app.app_for');
         $main_menu = 'types';
         $sub_menu = '';
-        return view('admin.types.create', compact('page', 'main_menu', 'sub_menu'));
+        return view('admin.types.create', compact('page', 'main_menu', 'sub_menu','app_for'));
     }
 
 
@@ -104,11 +106,11 @@ class VehicleTypeController extends BaseController
     public function store(CreateVehicleTypeRequest $request)
     {
       
-        //  if (env('APP_FOR')=='demo') {
-        //     $message = trans('succes_messages.you_are_not_authorised');
+         if (env('APP_FOR')=='demo') {
+            $message = trans('succes_messages.you_are_not_authorised');
 
-        //     return redirect('types')->with('warning', $message);
-        // }
+            return redirect('types')->with('warning', $message);
+        }
         // dd($request->transport_type);
         // echo "test";
         // exit;
@@ -117,14 +119,10 @@ class VehicleTypeController extends BaseController
              $is_taxi = $request->transport_type;
 
 
-            if ($is_taxi == 'delivery')
+            if ($request->size)
             {
                 $created_params['size'] = $request->size;
                 $created_params['capacity'] = $request->maximum_weight_can_carry;
-            }else if ($is_taxi == 'both')
-            {
-                $created_params['size'] = $request->size;
-                $created_params['capacity'] = $request->maximum_weight_can_carry." ".$request->size; 
             }
 
         if ($uploadedFile = $this->getValidatedUpload('icon', $request)) {
@@ -151,12 +149,13 @@ class VehicleTypeController extends BaseController
     {
         $page = trans('pages_names.edit_type');
         $type = $this->vehicle_type->where('id', $id)->first();
-//          dd($type);
+        //  dd($type);
         // $admins = User::doesNotBelongToRole(RoleSlug::SUPER_ADMIN)->get();
         // $services = ServiceLocation::whereActive(true)->get();
+        $app_for = config('app.app_for');
         $main_menu = 'types';
         $sub_menu = '';
-        return view('admin.types.update', compact('page', 'main_menu', 'sub_menu','type'));
+        return view('admin.types.update', compact('page', 'main_menu', 'sub_menu','type', 'app_for'));
     }
 
 
@@ -174,11 +173,11 @@ class VehicleTypeController extends BaseController
      */
     public function update(UpdateVehicleTypeRequest $request, VehicleType $vehicle_type)
     {
-        // if (env('APP_FOR')=='demo') {
-        //     $message = trans('succes_messages.you_are_not_authorised');
+        if (env('APP_FOR')=='demo') {
+            $message = trans('succes_messages.you_are_not_authorised');
 
-        //     return redirect('types')->with('warning', $message);
-        // }
+            return redirect('types')->with('warning', $message);
+        }
         // dd($request->all());
         $this->validateAdmin();
 
@@ -186,12 +185,11 @@ class VehicleTypeController extends BaseController
 
              $is_taxi = $request->transport_type;
 
-            if ($is_taxi == 'delivery')
+            if ($request->size)
             {
                 $created_params['size'] = $request->size;
                 $created_params['capacity'] = $request->maximum_weight_can_carry;
             }
-
         if ($uploadedFile = $this->getValidatedUpload('icon', $request)) {
             $created_params['icon'] = $this->imageUploader->file($uploadedFile)
                 ->saveVehicleTypeImage();

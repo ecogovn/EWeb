@@ -117,7 +117,7 @@ class LoginController extends ApiController
     public function logoutSPA(Request $request)
     {
         if (auth()->user()->hasRole(Role::dispatchRoles())) {
-            $redirect = 'dispatch-login';
+            $redirect = 'login-dispatch';
         } 
         else if (auth()->user()->hasRole('owner')) {
             $redirect = 'company-login';
@@ -539,13 +539,30 @@ class LoginController extends ApiController
             $user->fresh();
 
             if ($request->has('password')) {
+            //     return $this->issueToken([
+            //     'grant_type' => 'password',
+            //     'client_id' => $client_tokens->id,
+            //     'client_secret' => $client_tokens->secret,
+            //     'username' => $request->input($this->getLoginIdentifier()),
+            //     'password' => $request->input('password'),
+            // ]);
+                $client_tokens = DB::table('oauth_clients')->where('personal_access_client', 1)->first();
+
+                $token = $user->createToken('personal_access', [])->accessToken;
+
+                if($request->has('new_flow') && $request->new_flow){
+                    return response()->json(['success'=>true,'message'=>'success','access_token'=>$token]);
+                }
+
+
                 return $this->issueToken([
-                'grant_type' => 'password',
+                'grant_type' => 'personal_access',
                 'client_id' => $client_tokens->id,
                 'client_secret' => $client_tokens->secret,
-                'username' => $request->input($this->getLoginIdentifier()),
-                'password' => $request->input('password'),
-            ]);
+                'user_id' => $user->id,
+                'scope' => [],
+                ]);
+                
             } else {
                 $client_tokens = DB::table('oauth_clients')->where('personal_access_client', 1)->first();
 

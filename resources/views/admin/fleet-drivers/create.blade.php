@@ -3,7 +3,20 @@
 
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('assets/build/css/intlTelInput.css') }}">
 
+<style>
+    .type .select2-container .select2-search--inline {
+        float: left;
+        position: relative;
+        top: -20px;
+        left:5px;
+    }
+    .type .select2-search{
+        height:20px;
+        width:100%;        
+    }
+</style>
 <!-- Start Page content -->
 <div class="content">
 <div class="container-fluid">
@@ -23,7 +36,7 @@
 
 <div class="col-sm-12">
 
-<form  method="post" class="form-horizontal" action="{{url('fleet-drivers/store')}}" enctype="multipart/form-data">
+<form  method="post" id="fleetDriverCreate" class="form-horizontal" action="{{url('fleet-drivers/store')}}" enctype="multipart/form-data">
 {{csrf_field()}}
 <div class="row">
 <div class="col-6">
@@ -82,28 +95,33 @@
 
 
 <div class="row">
-<div class="col-sm-6">
-           <div class="form-group">
-               <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
-               <select name="transport_type" id="transport_type" class="form-control" required>
-                   <option value="" selected disabled>@lang('view_pages.select')</option>
-                   <option value="taxi" {{ old('transport_type') == 'taxi' ? 'selected' : '' }}>@lang('view_pages.taxi')</option>
-                   <option value="delivery" {{ old('transport_type') == 'delivery' ? 'selected' : '' }}>@lang('view_pages.delivery')</option>
-                   <option value="both" {{ old('transport_type') == 'both' ? 'selected' : '' }}>@lang('view_pages.both')</option>
-               </select>
-               <span class="text-danger">{{ $errors->first('transport_type') }}</span>
-           </div>
-       </div>
+    @if($app_for !== 'taxi' && $app_for !== "delivery")
     <div class="col-sm-6">
-        <div class="form-group">
+       <div class="form-group">
+           <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
+           <select name="transport_type" id="transport_type" class="form-control" required>
+               <option value="" selected disabled>@lang('view_pages.select')</option>
+               <option value="taxi" {{ old('transport_type') == 'taxi' ? 'selected' : '' }}>@lang('view_pages.taxi')</option>
+               <option value="delivery" {{ old('transport_type') == 'delivery' ? 'selected' : '' }}>@lang('view_pages.delivery')</option>
+               <option value="both" {{ old('transport_type') == 'both' ? 'selected' : '' }}>@lang('view_pages.both')</option>
+           </select>
+           <span class="text-danger">{{ $errors->first('transport_type') }}</span>
+       </div>
+   </div>
+    @endif
+    <div class="col-sm-6">
+        <div class="form-group type">
             <label for="type">@lang('view_pages.select_type')
                 <span class="text-danger">*</span>
             </label>
-            <select name="type" id="type" class="form-control" required>
+            <select name="type" id="type" class="form-control select2" multiple="multiple" required>
+                @if($app_for !== 'taxi' && $app_for !== 'delivery')
                 <option value="" >@lang('view_pages.select_type')</option>
+                @else
                 @foreach($types as $key=>$type)
                 <option value="{{$type->id}}" {{ old('type') == $type->id ? 'selected' : '' }}>{{$type->name}}</option>
                 @endforeach
+                @endif
             </select>
             </div>
     </div>
@@ -202,7 +220,37 @@
 <!-- content -->
 <!-- jQuery 3 -->
     <script src="{{asset('assets/vendor_components/jquery/dist/jquery.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/build/js/intlTelInput.js') }}"></script>
+
 <script>
+
+    let util = '{{ asset('assets/build/js/utils.js') }}'
+    var input = document.querySelector("#mobile");
+    var default_country = "{{get_settings('default_country_code_for_mobile_app')}}";
+    var iti = window.intlTelInput(input, {
+        initialCountry: default_country,
+        allowDropdown: true,
+        separateDialCode: true,
+        utilsScript: util,
+    });
+    $('#fleetDriverCreate').submit(function(e){
+        e.preventDefault();
+        var formData = $(this).serializeArray();
+        formData.push({name:'dial_code', value:$('.iti__selected-dial-code').text()});
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'dial_code',
+            value: $('.iti__selected-dial-code').text()
+        }).appendTo(this);
+        $.param(formData);
+        $(this).off('submit').submit();
+    })
+
+   $('.select2').select2({
+        placeholder : "Select ...",
+    });
+
     let oldTransportType = "{{ old('transport_type') }}";
 
     let oldCarMake = "{{ old('car_make') }}";

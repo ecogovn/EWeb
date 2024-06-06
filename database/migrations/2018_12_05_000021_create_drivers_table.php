@@ -27,7 +27,7 @@ class CreateDriversTable extends Migration
             $table->string('city', 50)->nullable();
             $table->unsignedInteger('country');
             $table->string('postal_code')->nullable();
-            $table->enum('gender', ['male','fe-male','others']);
+            $table->string('gender')->nullable();
             // $table->string('device_token')->nullable();
             // $table->string('social_unique_id')->nullable();
             // $table->enum('login_method',['manual','facebook','google'])->nullable();

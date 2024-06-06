@@ -7,7 +7,9 @@
                         <thead>
                             <tr>
                            <th>@lang('view_pages.s_no')</th>
+                            @if($app_for == "bidding" || $app_for == "super")
                             <th>@lang('view_pages.transport_type')</th>
+                            @endif
                             <th>@lang('view_pages.vehicle_type')</th>
                             <th>@lang('view_pages.price_type')</th>
                             <th>@lang('view_pages.status')</th>
@@ -25,7 +27,9 @@
                                 @foreach ($results as $key => $result)
                                     <tr>
                     <td>{{ $i++ }}</td>
+                    @if($app_for == "bidding" || $app_for == "super")
                     <td>{{ ($result->zoneType->transport_type) }}</td>
+                    @endif
                     <td>{{ $result->zoneType->vehicleType->name }}
                             @if ($result->zoneType->zone->default_vehicle_type == $result->zoneType->vehicleType->id)
                             <button class="btn btn-warning btn-sm">Default</button>

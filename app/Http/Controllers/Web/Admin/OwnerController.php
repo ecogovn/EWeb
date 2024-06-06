@@ -31,6 +31,8 @@ use App\Base\Constants\Setting\Settings;
 use Illuminate\Support\Str;
 use App\Base\Constants\Masters\WalletRemarks;
 use App\Jobs\Notifications\SendPushNotification;
+use Config;
+use App\Models\Country;
 
 class OwnerController extends BaseController
 {
@@ -109,20 +111,26 @@ class OwnerController extends BaseController
         $main_menu = 'manage_owners';
         $sub_menu = $area->name;
         $needed_document = OwnerNeededDocument::active()->get();
+        $app_for = config('app.app_for');
 
-        return view('admin.owners.create', compact('services', 'page', 'main_menu', 'sub_menu','needed_document','area'));
+        return view('admin.owners.create', compact('services', 'page', 'main_menu', 'sub_menu','needed_document','app_for','area'));
     }
 
     public function store(StoreOwnerRequest $request){
-        $created_params = $request->only(['service_location_id','company_name','owner_name','name','surname','mobile','phone','email','address','postal_code','city','no_of_vehicles','tax_number','bank_name','ifsc','account_no','transport_type']);
+        $created_params = $request->only(['service_location_id','company_name','owner_name','name','surname','mobile','phone','email','address','postal_code','city','no_of_vehicles','tax_number','bank_name','ifsc','account_no']);
         $userParam = $request->only(['name','email','mobile']);
         $userParam['mobile_confirmed'] = true;
         $userParam['password'] = bcrypt($request->input('password'));
         $created_params['password'] = bcrypt($request->input('password'));
 
-        $service_location = ServiceLocation::find($request->service_location_id);
+        $country = Country::where('dial_code',$request->dial_code)->first();
 
-        $userParam['country'] = $service_location->country;
+
+        if(config('app.app_for') !== 'taxi' && config('app.app_for') !== 'delivery'){
+            $created_params['transport_type'] = $request->transport_type;
+        }
+
+        $userParam['country'] = $country->id;
 
         $user = $this->user->create($userParam);
         
@@ -171,9 +179,10 @@ class OwnerController extends BaseController
        }
 
         $item = $owner;
+        $app_for = config('app.app_for');
         $services = ServiceLocation::whereActive(true)->whereId($item->service_location_id)->get();
         $needed_document = OwnerNeededDocument::active()->get();
-        return view('admin.owners.update', compact('item', 'services', 'page', 'main_menu', 'sub_menu','needed_document'));
+        return view('admin.owners.update', compact('item', 'services', 'page', 'main_menu', 'sub_menu','needed_document','app_for'));
     }
 
     public function update(Owner $owner,UpdateOwnerRequest $request)

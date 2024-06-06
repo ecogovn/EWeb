@@ -15,6 +15,7 @@ use App\Models\Admin\ZoneTypePrice;
 use Illuminate\Http\Request;
 use App\Base\Constants\Auth\Role as RoleSlug;
 use Illuminate\Validation\ValidationException;
+use Config;
 
 class VehicleFareController extends Controller
 {
@@ -24,19 +25,29 @@ class VehicleFareController extends Controller
         $page = trans('pages_names.owners');
         $main_menu = 'vehicle-fare';
         $sub_menu = $zone->name;
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
         return view('admin.vehicle_fare.zoneIndex', compact('page', 'main_menu', 'sub_menu', 'zone'));
+    }else{
+        return view('admin.vehicle_fare.taxi.zoneIndex', compact('page', 'main_menu', 'sub_menu', 'zone'));
+
+    }
     }
     public function getAllPrice(QueryFilterContract $queryFilter,Zone $zone)
     {
+        $app_for = config('app.app_for');
         
             $results = ZoneTypePrice::whereHas('zoneType', function ($query) use ($zone) {
             $query->where('zone_id', $zone->id);
             })
             ->orderBy('created_at', 'desc') // Add this line to order by created_at in descending order
             ->paginate();
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
 
-        return view('admin.vehicle_fare._set_price', compact('results'))->render();
+        return view('admin.vehicle_fare._set_price', compact('results','app_for'))->render();
+        }else{
+            return view('admin.vehicle_fare.taxi._set_price', compact('results','app_for'))->render();
+        }
     }
 
 
@@ -49,7 +60,15 @@ class VehicleFareController extends Controller
         $main_menu = 'vehicle-fare';
         $sub_menu = '';
 
-        return view('admin.vehicle_fare.create', compact('page', 'main_menu', 'sub_menu', 'zones'));
+
+        $vehicle_type = VehicleType::where('active',1)->get();
+
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
+        return view('admin.vehicle_fare.create', compact('page', 'main_menu', 'sub_menu', 'zones', 'vehicle_type'));
+       }else{
+        return view('admin.vehicle_fare.taxi.create', compact('page', 'main_menu', 'sub_menu', 'zones', 'vehicle_type'));
+
+       }
     }
 
     public function fetchVehiclesByZone(Request $request)
@@ -57,14 +76,20 @@ class VehicleFareController extends Controller
 
         $zone = Zone::whereId($request->_zone)->first();        
         $ids = $zone->zoneType()->pluck('type_id')->toArray();
-        if($request->transport_type!='both'){
+        $app_for = config('app.app_for');
+
+        if($request->has('transport_type')&&($request->transport_type!='both')){
             $types = VehicleType::whereNotIn('id', $ids)->active()->where(function($query)use($request){
             $query->where('is_taxi',$request->transport_type)->orWhere('is_taxi','both');
         })->get();    
         }else{
-            $types = VehicleType::whereNotIn('id', $ids)->active()->get();
+            $types = VehicleType::where(function ($query) use ($ids) {
+                if (!empty($ids)) {
+                    $query->whereNotIn('id', $ids);
+                }
+            })->active()->get();
         }
-        
+
 
         return response()->json(['success' => true, 'data' => $types]);
     }
@@ -91,6 +116,9 @@ class VehicleFareController extends Controller
             'type_id' => $request->type,
             'payment_type' => $payment,
             'transport_type' => $request->transport_type,
+            'admin_commision_type' => $request->admin_commision_type,
+            'admin_commision' => $request->admin_commision,
+            'service_tax' => $request->service_tax,
             'bill_status' => true,
         ]);
 
@@ -127,11 +155,19 @@ class VehicleFareController extends Controller
     public function getById(ZoneTypePrice $zone_price)
     {
         // dd($zone_price);
+
+        $app_for = config('app.app_for');
+
+
         $page = trans('pages_names.edit_vehicle_fare');
         $main_menu = 'vehicle-fare';
         $sub_menu = '';
 // dd($zone_price->zoneType->transport_type);
+      if((config('app.app_for')=="super") || (config('app.app_for')=="bidding")){
         return view('admin.vehicle_fare.edit', compact('page', 'main_menu', 'sub_menu', 'zone_price'));
+        }else{
+            return view('admin.vehicle_fare.taxi.edit', compact('page', 'main_menu', 'sub_menu', 'zone_price'));
+        }
     }
 
     public function update(Request $request,ZoneTypePrice $zone_price)
@@ -142,6 +178,9 @@ class VehicleFareController extends Controller
         $zone_price->zoneType()->update([
             'payment_type' => implode(',', $request->payment_type),
             'transport_type' => $request->transport_type,
+            'admin_commision_type' => $request->admin_commision_type,
+            'admin_commision' => $request->admin_commision,
+            'service_tax' => $request->service_tax,            
         
         ]);
         if($zone_price->price_type == 1)

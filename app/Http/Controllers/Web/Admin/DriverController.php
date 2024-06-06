@@ -43,6 +43,7 @@ use Kreait\Firebase\Contract\Database;
 use App\Jobs\Notifications\SendPushNotification;
 use App\Models\Admin\DriverVehicleType;
 use App\Models\Chat;
+use Config;
 
 /**
  * @resource Driver
@@ -115,6 +116,7 @@ class DriverController extends BaseController
     */
     public function getApprovedDrivers(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
         if (access()->hasRole(RoleSlug::SUPER_ADMIN)) {
                 $query = Driver::where('approve', true)->where('owner_id', null)->orderBy('created_at', 'desc');
                 if (env('APP_FOR')=='demo') {
@@ -129,7 +131,7 @@ class DriverController extends BaseController
             }
             $results = $queryFilter->builder($query)->customFilter(new DriverFilter)->paginate();
 
-            return view('admin.drivers._drivers', compact('results'))->render();
+            return view('admin.drivers._drivers', compact('results','app_for'))->render();
 
     }
     public function approvalPending()
@@ -138,10 +140,13 @@ class DriverController extends BaseController
         $main_menu = 'drivers';
         $sub_menu = 'driver_approval_pending';
         $services = ServiceLocation::whereActive(true)->companyKey()->get();
-        return view('admin.drivers.pending-for-approval', compact('page', 'main_menu', 'sub_menu','services'));
+        $app_for = config('app.app_for');
+        return view('admin.drivers.pending-for-approval', compact('page', 'main_menu', 'app_for', 'sub_menu','services'));
     }
     public function getApprovalPendingDrivers(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
          if (access()->hasRole(RoleSlug::SUPER_ADMIN)) {
                 $query = Driver::where('approve', false)->where('owner_id', null)->orderBy('created_at', 'desc');
 
@@ -157,7 +162,7 @@ class DriverController extends BaseController
             }
             $results = $queryFilter->builder($query)->customFilter(new DriverFilter)->paginate();
 
-            return view('admin.drivers._drivers', compact('results'))->render();
+            return view('admin.drivers._drivers', compact('results','app_for'))->render();
 
     }
 
@@ -175,12 +180,13 @@ class DriverController extends BaseController
         $countries = Country::all();
         $carmake = CarMake::active()->get();
 
+        $app_for = config('app.app_for');
         $companies = Company::active()->get();
 
         $main_menu = 'drivers';
         $sub_menu = 'driver_details';
 
-        return view('admin.drivers.create', compact('services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake'));
+        return view('admin.drivers.create', compact('services', 'types', 'page', 'countries', 'app_for', 'main_menu', 'sub_menu', 'companies', 'carmake'));
     }
 
     /**
@@ -209,9 +215,7 @@ class DriverController extends BaseController
         $created_params['owner_id'] = null;
 
 
-        $service_location = ServiceLocation::find($request->service_location_id);
-
-        $country_id = $service_location->country;
+        $country = Country::where('dial_code',$request->dial_code)->first();
 
         $user = $this->user->create(['name'=>$request->input('name'),
             'email'=>$request->input('email'),
@@ -220,7 +224,7 @@ class DriverController extends BaseController
             'password' => bcrypt($request->input('password')),
             'company_key'=>auth()->user()->company_key,
             'refferal_code'=> str_random(6),
-            'country'=>$country_id,
+            'country'=>$country->id,
         ]);
 
 
@@ -233,6 +237,7 @@ class DriverController extends BaseController
 
 
         $created_params['active'] = false;
+        $created_params['country'] = $country->id;
 
         $driver = $user->driver()->create($created_params);
 
@@ -264,19 +269,22 @@ class DriverController extends BaseController
         $countries = Country::all();
         $companies = Company::active()->get();
         $item = $driver;
-        $transportType = CarMake::active()->get();
-        $carmake = CarMake::active()->whereTransportType($item->transport_type)->get();
+        $app_for = config('app.app_for') ;
+        if($app_for !== "taxi" && $app_for !== "delivery"){
+            $carmake = CarMake::active()->whereTransportType($item->transport_type)->get();
+        }else{
+            $carmake = CarMake::active()->get();
+        }
         $carmodel = CarModel::active()->whereMakeId($item->car_make)->get();
         $main_menu = 'fleet-drivers';
         $sub_menu = 'driver_details';
 
-        return view('admin.drivers.update', compact('item', 'services', 'types', 'page', 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake', 'carmodel'));
+        return view('admin.drivers.update', compact('item', 'services', 'types', 'page', 'app_for' , 'countries', 'main_menu', 'sub_menu', 'companies', 'carmake', 'carmodel'));
     }
 
 
       public function update(Driver $driver, UpdateDriverRequest $request)
     {
-        // dd($request);
         $updatedParams = $request->only(['service_location_id', 'name','mobile','email','gender','car_make','car_model','car_color','car_number']);
 
         $user = $driver->user;
@@ -300,11 +308,11 @@ class DriverController extends BaseController
             $user_param['profile'] = $this->imageUploader->file($uploadedFile)
                 ->saveProfilePicture();
         }
-        
-        $driver->update(['name'=>$request->input('name'),
+        $country = Country::where('dial_code',$request->dial_code)->first();
+         $driverdata = ['name'=>$request->input('name'),
             'email'=>$request->input('email'),
+            'country'=>$country->id,
             'mobile'=>$request->input('mobile'),
-            'transport_type'=>$request->input('transport_type'),
             'car_make'=>$request->input('car_make'),
             'car_model'=>$request->input('car_model'),
             'car_color'=>$request->input('car_color'),
@@ -312,7 +320,11 @@ class DriverController extends BaseController
             // 'vehicle_type'=>$request->input('type'),
             'service_location_id'=>$request->service_location_id
 
-        ]);
+        ];
+        if(config('app.app_for') !== 'taxi' && config('app.app_for')  !== 'delivery'){
+            $driverData->transport_type = $request->input('transport_type');
+        }
+        $driver->update($driverdata);
 
         $driver->user->update(['name'=>$request->input('name'),
             'email'=>$request->input('email'),
@@ -448,11 +460,12 @@ class DriverController extends BaseController
     }
     public function getDeletedDrivers(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
 
         $query = User::whereNotNull('is_deleted_at')->belongsToRole(RoleSlug::DRIVER);
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
 
-       return view('admin.drivers._deleted', compact('results'))->render();
+       return view('admin.drivers._deleted', compact('results','app_for'))->render();
 
     }
     public function delete(Driver $driver)
@@ -478,8 +491,12 @@ class DriverController extends BaseController
 
         $vehicletype = VehicleType::whereId($type)->first();
         // dd(CarMake::active()->whereTransportType($vehicletype->is_taxi)->get());
-
-        return CarMake::active()->whereTransportType($vehicletype->is_taxi)->get();
+        if(config('app.app_for') == "bidding" || config('app.app_for') == "super"){
+            $carmake = CarMake::active()->whereTransportType($vehicletype->is_taxi)->get();
+        }else{
+            $carmake = CarMake::active()->get();
+        }
+        return $carmake;
     }
     public function getType()
     {
@@ -605,6 +622,7 @@ class DriverController extends BaseController
 
     public function driverRatings()
     {
+        
         $page = trans('pages_names.drivers');
         $main_menu = 'drivers';
         $sub_menu = 'driver_ratings';
@@ -614,13 +632,14 @@ class DriverController extends BaseController
     }
 
     public function fetchDriverRatings(QueryFilterContract $queryFilter){
+        $app_for = config('app.app_for');
 
         $query = Driver::query();
 
         $results = $queryFilter->builder($query)->customFilter(new DriverFilter)->paginate();
 
 
-        return view('admin.drivers._driver-ratings', compact('results'))->render();
+        return view('admin.drivers._driver-ratings', compact('results','app_for'))->render();
 
     }
 

@@ -28,10 +28,12 @@
 <span style="float: right;">
 </span>
 </th>
+@if($app_for !== 'taxi' && $app_for !== 'delivery')
 <th> @lang('view_pages.transport_type')</th>
 <span style="float: right;">
 </span>
 </th>
+@endif
 <th>@lang('view_pages.document_view')</th>
 <!-- <th> @lang('view_pages.status') -->
 <span style="float: right;">
@@ -83,7 +85,9 @@
     @else
     <td>{{$result->mobile}}</td>
 @endif
+@if($app_for !== 'taxi' && $app_for !== 'delivery')
     <td>{{$result->transport_type}}</td>
+@endif
 @if(auth()->user()->can('fleet-driver-document'))         
 <td>
     <a href="{{ url('drivers/document/view',$result->id) }}" class="btn btn-social-icon btn-bitbucket">

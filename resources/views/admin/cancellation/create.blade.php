@@ -39,6 +39,7 @@
                                             <span class="text-danger">{{ $errors->first('user_type') }}</span>
                                         </div>
                                     </div>
+                            @if($app_for == "super" || $app_for == "bidding")                                    
                                   <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="">@lang('view_pages.transport_type') <span class="text-danger">*</span></label>
@@ -50,6 +51,7 @@
                                             <span class="text-danger">{{ $errors->first('transport_type') }}</span>
                                         </div>
                                     </div>
+                            @endif
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="payment_type">@lang('view_pages.payment_type') <span class="text-danger">*</span></label>

@@ -31,7 +31,7 @@
                                         <div class="form-group">
                                             <label for="name">@lang('view_pages.name') <span class="text-danger">*</span></label>
                                             <input class="form-control" type="text" id="name" name="name"
-                                                value="{{ old('name', $results->name) }}" required=""
+                                                value="{{ $results->name, old('name') }}" required=""
                                                 placeholder="@lang('view_pages.enter_name')">
                                             <span class="text-danger">{{ $errors->first('name') }}</span>
 

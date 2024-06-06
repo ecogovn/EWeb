@@ -62,24 +62,6 @@
                                     </div>
                                     <div class="modal-body text-left">
                                         <div class="driver-status">
-                                            <h4>@lang('view_pages.active_status')</h4>
-                                            <div class="demo-radio-button">
-                                                <input name="active" type="radio" id="active" data-val="1"
-                                                    class="with-gap radio-col-green">
-                                                <label for="active">@lang('view_pages.active')</label>
-                                                <input name="active" type="radio" id="inactive" data-val="0"
-                                                    class="with-gap radio-col-grey">
-                                                <label for="inactive">@lang('view_pages.Inactive')</label>
-                                            </div>
-                                            <h4>@lang('view_pages.approve_status')</h4>
-                                            <div class="demo-radio-button">
-                                                <input name="approve" type="radio" id="approved" data-val="1"
-                                                    class="with-gap radio-col-green">
-                                                <label for="approved">@lang('view_pages.approved')</label>
-                                                <input name="approve" type="radio" id="disapproved" data-val="0"
-                                                    class="with-gap radio-col-grey">
-                                                <label for="disapproved">@lang('view_pages.disapproved')</label>
-                                            </div>
                                             <h4>@lang('view_pages.online_status')</h4>
                                             <div class="demo-radio-button">
                                                 <input name="available" type="radio" id="online" data-val="1"
@@ -155,7 +137,7 @@
                 });
 
                 $('.filter,.resetfilter').on('click', function() {
-                    let filterColumn = ['active', 'approve', 'available','area'];
+                    let filterColumn = ['available','area'];
 
                     let className = $(this);
                     query = '';
@@ -177,7 +159,6 @@
                             }
                         }
                     });
-
                     fetch('drivers/fetch/approved?' + query)
                         .then(response => response.text())
                         .then(html => {
@@ -191,6 +172,7 @@
 
                 let url = $(this).attr('data-url');
 
+console.log(url);
                 swal({
                     title: "Are you sure to delete ?",
                     type: "error",

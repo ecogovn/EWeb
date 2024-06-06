@@ -26,6 +26,7 @@ use App\Base\Constants\Setting\Settings;
 use Illuminate\Support\Str;
 use App\Base\Constants\Masters\WalletRemarks;
 use App\Models\Chat;
+use Kreait\Firebase\Contract\Database;
 
 
 
@@ -58,11 +59,13 @@ class UserController extends BaseController
      *
      * @param \App\Models\Admin\UserDetails $user_details
      */
-    public function __construct(UserDetails $user_details, ImageUploaderContract $imageUploader, User $user)
+    public function __construct(UserDetails $user_details, ImageUploaderContract $imageUploader, User $user,Database $database)
     {
         $this->user_details = $user_details;
         $this->imageUploader = $imageUploader;
         $this->user = $user;
+        $this->database = $database;
+        
     }
 
     /**

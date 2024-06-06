@@ -21,6 +21,10 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
   {
       baseUrl+="/super_bidding/public";
   }  
+  
+  if(window.location.protocol == "http:"){
+    baseUrl+="/all_in_one/public";
+  }
   var modal;
   function popup_init(){
        modal = document.getElementById("modal1");

@@ -1793,14 +1793,14 @@ class RolesAndPermissionsSeeder extends Seeder
         ],
         RoleSlug::DISPATCHER=>[
             'name' => 'Dispatcher',
-            'description' => 'Taxi Dispatcher user with standard access',
+            'description' => 'Dispatcher user with standard access',
             'permissions' => [],
         ],
-        RoleSlug::DELIVERY_DISPATCHER=>[
-            'name' => 'Delivery-Dispatcher',
-            'description' => 'Delivery Dispatcher user with standard access',
-            'permissions' => [],
-        ],
+        // RoleSlug::DELIVERY_DISPATCHER=>[
+        //     'name' => 'Delivery-Dispatcher',
+        //     'description' => 'Delivery Dispatcher user with standard access',
+        //     'permissions' => [],
+        // ],
 
 
 

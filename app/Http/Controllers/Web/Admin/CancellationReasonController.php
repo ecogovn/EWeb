@@ -35,10 +35,12 @@ class CancellationReasonController extends Controller
 
     public function fetch(QueryFilterContract $queryFilter)
     {
+        $app_for = config('app.app_for');
+
         $query = $this->reason->query();
         $results = $queryFilter->builder($query)->customFilter(new CommonMasterFilter)->paginate();
 
-        return view('admin.cancellation._cancellation', compact('results'));
+        return view('admin.cancellation._cancellation', compact('results','app_for'));
     }
 
     public function create()
@@ -46,8 +48,9 @@ class CancellationReasonController extends Controller
         $page = trans('pages_names.add_cancellation_reason');
         $main_menu = 'cancellation-reason';
         $sub_menu = '';
+        $app_for = config('app.app_for');
 
-        return view('admin.cancellation.create', compact('page', 'main_menu', 'sub_menu'));
+        return view('admin.cancellation.create', compact('page', 'main_menu', 'sub_menu','app_for'));
     }
 
     public function store(CreateCancellationReasonRequest $request)
@@ -69,8 +72,9 @@ class CancellationReasonController extends Controller
         $main_menu = 'cancellation-reason';
         $sub_menu = '';
         $item = $reason;
+        $app_for = config('app.app_for');
 
-        return view('admin.cancellation.update', compact('item', 'page', 'main_menu', 'sub_menu'));
+        return view('admin.cancellation.update', compact('item', 'page', 'main_menu', 'sub_menu','app_for'));
     }
 
     public function update(CreateCancellationReasonRequest $request, CancellationReason $reason)

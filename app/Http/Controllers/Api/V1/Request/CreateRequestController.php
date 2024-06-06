@@ -522,7 +522,7 @@ Log::info($request);
         // Fetch user detail
         $user_detail = auth()->user();
         // Get last request's request_number
-        $request_number = $this->request->orderBy('updated_at', 'DESC')->pluck('request_number')->first();
+        $request_number = $this->request->orderBy('created_at', 'DESC')->pluck('request_number')->first();
         if ($request_number) {
             $request_number = explode('_', $request_number);
             $request_number = $request_number[1]?:000000;

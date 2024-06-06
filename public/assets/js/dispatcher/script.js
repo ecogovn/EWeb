@@ -66,11 +66,13 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
       var types = [];
       var picture = default_profile_url;
       var vehicle_type = $('#vehicle_type').find('option');
-      vehicle_type.each(function(){
-        if($(this).val() == driverData.vehicle_types[0]){
-          types.push($(this).attr('name'));
-        }
-      })
+      if(typeof vehicle_type == 'array'){
+          vehicle_type.each(function(){
+          if($(this).val() == driverData.vehicle_types[0]){
+            types.push($(this).attr('name'));
+          }
+        })
+      }
       types = types.join(',')
       html_data= `<div class="box p-2  mt-5 all-tabss" id="${driverData.id}" style="box-shadow:  0px 0px 8px 1px rgba(0,0,0,0.3);cursor:pointer" data-lat="${driverData.l[0]}" data-lng="${driverData.l[1]}">
                       <div class="d-flex flex-column flex-lg-row pb-2 mx-n5">
@@ -192,16 +194,9 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
               markerarray[type] = uniqueMarkerPositions;
 
               // Calculate the center of all marker positions
-              var centerLat = 0;
-              var centerLng = 0;
+              var centerLat = default_latitude;
+              var centerLng = default_longitude;
 
-              markerarray[type].forEach(function(markerPosition) {
-                  centerLat += markerPosition.lat;
-                  centerLng += markerPosition.lng;
-              });
-
-              centerLat /= markerarray[type].length;
-              centerLng /= markerarray[type].length;
               // Set the map center to the calculated center
               map.setCenter({ lat: centerLat, lng: centerLng });
               map.setZoom(5);
@@ -212,9 +207,21 @@ var baseUrl = window.location.protocol + "//" + window.location.hostname + (wind
           }
           if(lastkey)
           {
-            markerarray[type].forEach(function(markerPosition) {
-              addMarker(markerPosition.lat,markerPosition.lng,markerPosition.driver_id,markerPosition.name, markerPosition.mobile);
-            });
+            if(typeof markerarray[type] == 'undefined'){
+              var baseUrl = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+              if(window.location.hostname == "localhost")
+              {
+                baseUrl+="/ayo/public";
+              }
+              html_data = "";
+              html_data+= `<div class="box p-2 mt-5" style="height:400px;width:400px"><img src="${baseUrl}/images/no-drivers.png" style="height:100%;width:100%"></div>`;
+
+              $(".driver-side-menu").append(html_data);
+            }else{
+              markerarray[type].forEach(function(markerPosition) {
+                addMarker(markerPosition.lat,markerPosition.lng,markerPosition.driver_id,markerPosition.name, markerPosition.mobile);
+              });
+            }
           }
       }
     }
@@ -293,7 +300,7 @@ if(totalChildren == 0)
     var baseUrl = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ":" + window.location.port : "");
     if(window.location.hostname == "localhost")
     {
-        baseUrl+="/ayo/public";
+        baseUrl+="/all_in_one/public";
     }
   html_data = "";
  html_data+= `<div class="box p-2 mt-5" style="height:400px;width:400px"><img src="${baseUrl}/images/no-drivers.png" style="height:100%;width:100%"></div>`;

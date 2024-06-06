@@ -5,7 +5,9 @@
                                         <tr>
                                             <th> @lang('view_pages.s_no')</th>
                                             <th> @lang('view_pages.name')</th>
+                                            @if($app_for == "super" || $app_for == "bidding");
                                             <th> @lang('view_pages.transport_type')</th>
+                                            @endif                                           
                                             <th> @lang('view_pages.vehicle_type')</th>
                                             <th> @lang('view_pages.mobile')</th>
                                         @if(auth()->user()->can('view-driver-rating'))         
@@ -23,8 +25,18 @@
                                         <tr>
                                             <td>{{ $key+1}} </td>
                                             <td>{{$result->name ?? '-'}}</td>
+                                            @if($app_for == "super" || $app_for == "bidding");
                                             <td>{{$result->transport_type}}</td>
+                                            @endif
+                                            @if($result->vehicleType!=null)
                                             <td>{{$result->vehicleType->name ?? '-'}}</td>
+                                            @else
+                                            <td>
+                                                @foreach($result->driverVehicleTypeDetail as $vehicleType)
+                                                {{ $vehicleType->vehicleType->name.',' }}
+                                                @endforeach
+                                            </td>
+                                            @endif
                                             @if(env('APP_FOR')=='demo')
                                             <td>**********</td>
                                             @else

@@ -226,6 +226,7 @@ class UserRegistrationController extends LoginController
         $user_params = [
             'name' => $request->input('name'),
             'email' => $request->input('email'),
+            'gender' => $request->input('gender'),
             'mobile' => $mobile,
             'mobile_confirmed' => true,
             'fcm_token'=>$request->input('device_token'),

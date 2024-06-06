@@ -28,10 +28,12 @@
 <span style="float: right;">
 </span>
 </th>
+@if($app_for == "super" || $app_for == "bidding")
 <th> @lang('view_pages.transport_type')</th>
 <span style="float: right;">
 </span>
 </th>
+@endif
 <!-- <th> @lang('view_pages.vehicle_type')</th>
 <span style="float: right;">
 </span>
@@ -87,7 +89,9 @@
     @else
     <td>{{$result->mobile}}</td>
 @endif
+@if($app_for == "super" || $app_for == "bidding")
     <td>{{$result->transport_type}}</td>
+@endif
 <!-- <td>{{$result->vehicleType}}</td> -->
 <td>
     @if(auth()->user()->can('driver-document'))         

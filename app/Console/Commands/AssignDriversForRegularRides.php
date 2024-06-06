@@ -65,7 +65,9 @@ class AssignDriversForRegularRides extends Command
        $ride_cancelation_time =Carbon::now()->subMinutes(10)->format('Y-m-d H:i:s');
 
        $uncompleted_requests = Request::where('created_at', '<', $ride_cancelation_time)
-           ->where('is_completed', 0)
+           ->where('is_later', 0)
+            ->where('assign_method', 0)
+            ->where('is_completed', 0)
            ->where('is_cancelled', 0)
            ->where('is_driver_started', 0)
            ->get();
@@ -79,6 +81,9 @@ class AssignDriversForRegularRides extends Command
            
            $uncompleted_request->update($update_parms);
 
+           if($uncompleted_requests->driver_id){
+            Driver::where('id',$uncompleted_requests->driver_id)->update(['available'=>true]);
+        }
            $this->database->getReference('requests/'.$uncompleted_request->id)->update(['is_cancelled'=>true,'updated_at'=> Database::SERVER_TIMESTAMP]);
            $this->database->getReference('bid-meta/'.$uncompleted_request->id)->remove();
            $this->database->getReference('request-meta/'.$uncompleted_request->id)->remove();
@@ -92,9 +97,6 @@ class AssignDriversForRegularRides extends Command
         $requests = Request::where('on_search',1)
                     ->where('is_bid_ride',0)
                     ->where('is_completed', 0)->where('is_cancelled', 0)->where('is_driver_started', 0)->get();
-        // dd($current_time);
-
-        // dd($sub_5_min);
 
         if ($requests->count()==0) {
             return $this->info('no-regular-rides-found');

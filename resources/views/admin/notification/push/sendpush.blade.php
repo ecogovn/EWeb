@@ -4,6 +4,7 @@
 @section('content')
 
 <!-- iCheck for checkboxes and radio inputs -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/iCheck/all.css') }}">
 {{-- {{session()->get('errors')}} --}}
 
@@ -135,6 +136,9 @@
         });
     });
 
+   $('.select2').select2({
+        placeholder : "Select ...",
+    });
     $(document).on('click','.sendPush',function(){
         var isUserSelected = $('#user option:not([disabled])').is(':selected');
         var isDriverSelected = $('#driver option:not([disabled])').is(':selected');

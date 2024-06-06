@@ -59,12 +59,24 @@ In this article, we are going to set up the TYT App’s initial setup for real-t
 ```
 <a name="section-4"></a>
 
+2. Change App Color.
+
+    just update the below parameter to change the app color
+
+    <strong>Note : File Location : project/lib/styles/styles.dart</strong>
+
+    * Color buttonColor = const Color(0xffFCB13D);
+
+    * Color loaderColor = const Color(0xffFCB13D);
+
+    * Color theme = const Color(0xffFCB13D);
+
 <a name="section-5"></a>
 ## Change Website URL
 
 3. change website url in given files,
 	
-	* <strong> Note : File Location project/lib/pages/login/login.dart</strong>
+	* <strong> Note : File Location project/lib/pages/login/agreement.dart</strong>
 
 ```flutter
 onTap: () {
@@ -90,7 +102,7 @@ color: buttonColor),
 ),
 ```
 
-* <strong> Note : File Location "project/lib/pages/login/login.dart" </strong>
+* <strong> Note : File Location "project/lib/pages/login/agreement.dart" </strong>
 
 ```flutter
 onTap: () {
@@ -115,82 +127,16 @@ color: buttonColor),
 
 ```	
 
-* <strong> Note : File Location "project/lib/pages/navigatorPages/about.dart" </strong>
+* <strong>Note : File Location "project/lib/pages/NavigatorPages/support.dart" </strong>
 
-```flutter
-onTap: () {
+```flutter 
+SubMenu(
+                        onTap: () {
+                          openBrowser('privacy policy url');
+                        },
 
-openBrowser(
+                        ```
 
-'your terms and conditions url here');
-
-},
-
-child: Text(
-
-languages[choosenLanguage]
-
-['text_termsandconditions'],
-
-style: GoogleFonts.roboto(
-
-fontSize: media.width * sixteen,
-
-fontWeight: FontWeight.w600,
-
-color: textColor),
-
- 
-
-),
-```
-* <strong> Note : File Location "project/lib/pages/navigatorPages/about.dart" </strong>
-
-```flutter
-onTap: () {
-
-openBrowser(
-
-'your privacy policy url here');
-
-},
-
-child: Text(
-
-languages[choosenLanguage]['text_privacy'],
-
-style: GoogleFonts.roboto(
-
-fontSize: media.width * sixteen,
-
-fontWeight: FontWeight.w600,
-
-color: textColor),),
-```
-* <strong> Note : File Location "project/lib/pages/navigatorPages/about.dart" </strong>
-
-
-```flutter
-onTap: () {
-
-openBrowser('your website main page url here');
-
-},
-
-child: Text(
-
-languages[choosenLanguage]['text_about'],
-
-style: GoogleFonts.roboto(
-
-fontSize: media.width * sixteen,
-
-fontWeight: FontWeight.w600,
-
-color: textColor),
-
-),
-```
 
 <a name="section-6"></a>
 ## Google Map & Cloud Configure
@@ -219,9 +165,11 @@ android:value="your maps api key here"/>
 * <strong> Note : File Location "project/lib/functions/functions.dart" </strong>
 
 ```flutter
-String mapkey = 'your map key here';
+String mapkey = Platform.isAndroid ? 'android map key' : 'ios map key';
 
 ```
+
+ * add android map key with restriction for android package and add ios map key with restriction for ios bundle id
 
 * We need to create nodes in firebase realtime database, please find the sample json database below or refer firebase setup.
 
@@ -318,35 +266,13 @@ String mapkey = 'your map key here';
 
 2. copy the package name from firebase and paste it in the following files
 
-* <strong> Note : File Location "project/andrroid/app/src/main/AndroidManifest.xml" </strong>
 
-
-```flutter
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
-package="package name here">
-```
-* <strong> Note : File Location "project/android/app/src/profile/AndroidManifest.xml" </strong>
-
-```flutter
-	
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
-package="package name here">
-
-```
-
-* <strong> Note : File Location "project/android/app/src/debug/AndroidManifest.xml" </strong>
-
-```flutter
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
-package="package name here">
-```
 * <strong> Note : File Location "project/android/app/build.gradle" </strong>
 
 ```flutter
 applicationId "package name here"
+
+namespace "package name here"
 
 ```
 
@@ -374,6 +300,8 @@ applicationId "package name here"
 	
 	* project/assets/images/ - logo.png
 
+  * project/assets/images/ - icon.png (circle image 500x500, only for driver)
+
 	* project/android/app/src/main/res/mipmap-hdpi - ic_launcher.png (72x72)
 
 	* project/android/app/src/main/res/mipmap-mdpi - ic_launcher.png (48x48)
@@ -393,159 +321,28 @@ applicationId "package name here"
 
 * <strong> Note : File Location "project/android/app/src/main/AndroidManifest.xml" </strong>
 ```flutter
-android:label="project name"
+android:label="product name"
 
          project/lib/main.dart
 
  
 
- title: 'project name',
+ title: 'product name',
 
  ```
- 
-2. Change App Display name in Driver app for Background location notification
-  <strong>Note: File Location "project/lib/functions/functions.dart" </strong>
 
-```flutter
-  foregroundNotificationConfig:
-            const geolocs.ForegroundNotificationConfig(
-          notificationText:
-              "Tagxi Driver will continue to receive your location in background",
-          notificationTitle: "Location background service running",
-```
+ * <strong> Note : File Location "project/lib/functions/functions.dart - (only in driver)" </strong>
 
-
-
-<a name="section-10"></a>
-## change payment gateway keys
-
-1. change payment gateway keys,
-
-* <strong> Note : File Location "project/lib/pages/NavigatorPages/selectwallet.dart" </strong>
-
-```flutter
- Stripe.publishableKey = "your stripe key here"
+ ```flutter
+ product name will continue
  ```
 
-* <strong> Note : File Location "project/lib/pages/NavigatorPages/cashfreepage.dart" </strong>
+ * <strong>Note : File Location "project/lib/pages/login/agreement.dart</strong>
 
-```flutter
-'appId':'your cashfree id here',
+ ```flutter
+ replaceAll('5555', 'Product Name')
+ ```
 
-'stage' : 'TEST or PROD here',
-
-'color1' : 'theme color 1',
-
-'color2' : 'theme color 2',
-```
-
-* <strong> Note : File Location "project/pages/NavigatorPages/flutterwavepayment.dart" </strong>
-	
-	* edit following details as per your need
-
-```flutter
-final style = FlutterwaveStyle(
-
- 
-
-appBarText: "app bar text here",
-
-buttonColor: color of button,
-
-appBarIcon:const Icon(Icons.message, color: Color(0xffd0ebff)),
-
-buttonTextStyle:const TextStyle(
-
-color: Colors.black,
-
-fontWeight: FontWeight.bold,
-
-fontSize: 16,
-
-),
-
-appBarColor:const Color(0xffd0ebff),
-
-dialogCancelTextStyle:const TextStyle(
-
-color: Colors.redAccent,
-
-fontSize: 16,
-
-),
-
-dialogContinueTextStyle:const TextStyle(
-
-color: Colors.blue,
-
-fontSize: 16,
-
-),
-
- 
-
-);
-
- 
-
-final Customer customer = Customer(
-
-name: userDetails['name'],
-
-phoneNumber: userDetails['mobile'],
-
-email: userDetails['email']);
-
- 
-
-flutterwave = Flutterwave(
-
- 
-
-context: context,
-
-style: style,
-
-publicKey: "public key of flutterwave here",
-
-currency: "currency here",
-
-txRef: userDetails['id'].toString() + '_' + DateTime.now().toString(),
-
-amount: addMoney.toString(),
-
-customer: customer,
-
-paymentOptions: "ussd, card, barter, payattitude, account",
-
-customization: Customization(title: "title"),
-
-isTestMode: true or false,
-
- 
-
-);
-```
-
-* <strong> Note : File Location "project/lib/pages/NavigatorPages/paystackpayment.dart" </strong>
-
-```flutter
-plugin.initialize(publicKey: 'your paystack publickey here');
-```
-
-* <strong> Note : File Location "project/lib/pages/NavigatorPages/razorpaypage.dart" </strong>
-
-```flutter
-var options = {
-
-'key': 'razor pay key here',
-
-'amount': addMoney * 100,
-
-'name': userDetails['name'],
-
-
-```
 
 <a name="section-11"></a>
 ## Change app version
@@ -648,7 +445,7 @@ Click Settings icon (presented right on project overview ) -> project settings -
 ## Final Steps
 
 
-19. after uploading app in playstore, then you will get a sha1 key and sha256 key from playstore, add those keys in your project as
+19. after uploading app in playstore, then you will get a sha1 key and sha256 key from playstore, add those keys in your firebase project as
 
 <br>
 

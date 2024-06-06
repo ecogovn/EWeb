@@ -83,7 +83,7 @@ class DriverSignupController extends LoginController
     {
         $mobileUuid = $request->input('uuid');
 
-
+Log::info($request->all());
             $created_params = $request->only(['service_location_id', 'name','mobile','email','address','state','city','country','gender','vehicle_type','car_make','car_model','car_color','car_number','vehicle_year','custom_make','custom_model']);
 
         $created_params['postal_code'] = $request->postal_code;
@@ -132,6 +132,7 @@ class DriverSignupController extends LoginController
         }
         $data = [
             'name' => $request->input('name'),
+            'gender' => $request->input('gender'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
             'mobile' => $mobile,
@@ -177,7 +178,7 @@ class DriverSignupController extends LoginController
         }
 
         // // Store records to firebase
-        $this->database->getReference('drivers/'.'driver_'.$driver->id)->set(['id'=>$driver->id,'vehicle_type'=>$request->input('vehicle_type'),'active'=>1,'updated_at'=> Database::SERVER_TIMESTAMP]);
+        $this->database->getReference('drivers/'.'driver_'.$driver->id)->set(['id'=>$driver->id,'vehicle_type'=>$request->input('vehicle_type'),'active'=>1,'gender'=>$driver->gender,'updated_at'=> Database::SERVER_TIMESTAMP]);
 
         $driver_detail_data = $request->only(['is_company_driver','company']);
         $driver_detail = $driver->driverDetail()->create($driver_detail_data);//create driver details table data
@@ -284,8 +285,8 @@ if ($request->has('mobile') && $request->has('email')) {
     $mobile = $request->mobile;
     $email = $request->email;
 
-    $existsMobile = $this->user->belongsTorole(Role::DRIVER)->where('mobile', $mobile)->exists();
-    $existsEmail = $this->user->belongsTorole(Role::DRIVER)->where('email', $email)->exists();
+    $existsMobile = $this->user->belongsTorole($request->role)->where('mobile', $mobile)->exists();
+    $existsEmail = $this->user->belongsTorole($request->role)->where('email', $email)->exists();
 
     if ($existsMobile && $existsEmail) {
         // Both mobile and email exist
